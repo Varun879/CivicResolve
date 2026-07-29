@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="cr-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14213D" />
+      <stop offset="50%" stop-color="#0F5C74" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- Rounded Square Container -->
+  <rect width="512" height="512" rx="128" fill="url(#cr-grad)" />
+  <!-- Civic Shield & Verified Checkmark Emblem -->
+  <g filter="url(#shadow)" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Shield Outline -->
+    <path d="M256 72 C176 72 120 104 120 104 V248 C120 352 256 440 256 440 C256 440 392 352 392 248 V104 C392 104 336 72 256 72 Z" stroke-width="36" fill="rgba(255,255,255,0.15)"/>
+    <!-- Verified Checkmark -->
+    <path d="M200 256 L240 296 L320 200" stroke-width="44" stroke="#38BDF8" />
+  </g>
+</svg>

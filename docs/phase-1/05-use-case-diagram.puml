@@ -1,0 +1,111 @@
+@startuml Smart Civic Platform - Use Case Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+skinparam packageStyle rectangle
+skinparam usecaseBorderColor #386fa4
+skinparam usecaseFontColor #386fa4
+skinparam actorBorderColor #333333
+skinparam actorFontColor #333333
+skinparam arrowColor #386fa4
+
+left to right direction
+
+' ===== ACTORS =====
+actor "Citizen" as CITIZEN
+actor "Field Officer" as FO
+actor "Department Head" as DH
+actor "Municipal\nCommissioner" as MC
+actor "Super Admin" as SA
+
+' ===== USE CASES =====
+
+' --- Citizen Use Cases ---
+rectangle "Citizen Features" as C {
+  usecase (UC-1\nRegister / Login) as UC1
+  usecase (UC-2\nSubmit Complaint\nwith Photo + GPS) as UC2
+  usecase (UC-3\nTrack Complaint\nStatus & Timeline) as UC3
+  usecase (UC-4\nVerify Resolution\n(Close or Reopen)) as UC4
+  usecase (UC-5\nComment &\nUpvote Complaints) as UC5
+  usecase (UC-6\nView Rewards\n& Leaderboard) as UC6
+}
+
+' --- Field Officer Use Cases ---
+rectangle "Field Officer Features" as FO_R {
+  usecase (UC-7\nView Assigned\nComplaints) as UC7
+  usecase (UC-8\nAccept / Reject\nAssignment) as UC8
+  usecase (UC-9\nUpdate Status\n& Upload Proof) as UC9
+  usecase (UC-10\nView Personal\nPerformance Score) as UC10
+}
+
+' --- Department Head Use Cases ---
+rectangle "Dept Head Features" as DH_R {
+  usecase (UC-11\nView Department\nComplaints) as UC11
+  usecase (UC-12\nReassign Complaint\nwithin Dept) as UC12
+  usecase (UC-13\nView Officer\nPerformance) as UC13
+  usecase (UC-14\nExport Dept\nReports) as UC14
+}
+
+' --- Commissioner Use Cases ---
+rectangle "Commissioner Features" as MC_R {
+  usecase (UC-15\nCity Dashboard\n& Heatmaps) as UC15
+  usecase (UC-16\nReassign Complaint\nacross Depts) as UC16
+  usecase (UC-17\nView All Officer\nPerformance) as UC17
+  usecase (UC-18\nExport City\nReports) as UC18
+}
+
+' --- Super Admin Use Cases ---
+rectangle "Super Admin Features" as SA_R {
+  usecase (UC-19\nManage Users\n& Roles) as UC19
+  usecase (UC-20\nConfigure SLA\nRules) as UC20
+  usecase (UC-21\nManage Geo\nHierarchy) as UC21
+  usecase (UC-22\nConfigure Priority\nWeights) as UC22
+  usecase (UC-23\nFull System\nAccess & Audit) as UC23
+}
+
+' ===== RELATIONSHIPS - Citizen =====
+CITIZEN --> UC1
+CITIZEN --> UC2
+CITIZEN --> UC3
+CITIZEN --> UC4
+CITIZEN --> UC5
+CITIZEN --> UC6
+
+' ===== RELATIONSHIPS - Field Officer =====
+FO --> UC7
+FO --> UC8
+FO --> UC9
+FO --> UC10
+
+' ===== RELATIONSHIPS - Department Head =====
+DH --> UC11
+DH --> UC12
+DH --> UC13
+DH --> UC14
+
+' ===== RELATIONSHIPS - Commissioner =====
+MC --> UC15
+MC --> UC16
+MC --> UC17
+MC --> UC18
+
+' ===== RELATIONSHIPS - Super Admin =====
+SA --> UC19
+SA --> UC20
+SA --> UC21
+SA --> UC22
+SA --> UC23
+
+' ===== INCLUDE / EXTEND relationships =====
+UC2 .> (AI Inference\nPipeline) : <<includes>>
+UC2 .> (Duplicate\nDetection) : <<includes>>
+UC2 .> (Priority\nScoring) : <<includes>>
+UC2 .> (Auto-\nAssignment) : <<includes>>
+UC9 .> (SLA\nMonitoring) : <<includes>>
+UC9 .> (Escalation\nEngine) : <<includes>>
+UC4 .> (Reward Points\nCalculation) : <<includes>>
+
+' ===== SYSTEM BOUNDARY =====
+rectangle "Smart Civic Issue Reporting\n& Management Platform" as System {
+}
+
+@enduml

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CivicSmart - Report Issue</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-container-high": "#e6e8ea",
+                "on-tertiary-container": "#c88000",
+                "surface": "#f7f9fb",
+                "primary": "#091426",
+                "tertiary-fixed-dim": "#ffb95f",
+                "on-secondary-fixed-variant": "#005236",
+                "on-surface": "#191c1e",
+                "on-error": "#ffffff",
+                "secondary-fixed-dim": "#4edea3",
+                "on-secondary": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "surface-variant": "#e0e3e5",
+                "inverse-on-surface": "#eff1f3",
+                "primary-fixed": "#d8e3fb",
+                "on-secondary-container": "#00714d",
+                "on-background": "#191c1e",
+                "on-primary": "#ffffff",
+                "tertiary": "#201100",
+                "surface-tint": "#545f73",
+                "error": "#ba1a1a",
+                "inverse-surface": "#2d3133",
+                "on-primary-container": "#8590a6",
+                "surface-container": "#eceef0",
+                "secondary": "#006c49",
+                "inverse-primary": "#bcc7de",
+                "secondary-fixed": "#6ffbbe",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-fixed-variant": "#653e00",
+                "surface-container-low": "#f2f4f6",
+                "surface-dim": "#d8dadc",
+                "on-tertiary-fixed": "#2a1700",
+                "outline-variant": "#c5c6cd",
+                "primary-fixed-dim": "#bcc7de",
+                "tertiary-fixed": "#ffddb8",
+                "error-container": "#ffdad6",
+                "surface-bright": "#f7f9fb",
+                "secondary-container": "#6cf8bb",
+                "background": "#f7f9fb",
+                "on-surface-variant": "#45474c",
+                "on-primary-fixed": "#111c2d",
+                "on-primary-fixed-variant": "#3c475a",
+                "primary-container": "#1e293b",
+                "surface-container-highest": "#e0e3e5",
+                "tertiary-container": "#3c2300",
+                "on-secondary-fixed": "#002113",
+                "on-error-container": "#93000a",
+                "outline": "#75777d"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "container-max-width": "1280px",
+                "gutter": "24px",
+                "stack-lg": "32px",
+                "margin-desktop": "32px",
+                "margin-mobile": "16px",
+                "unit": "4px",
+                "stack-sm": "8px",
+                "stack-md": "16px"
+        },
+        "fontFamily": {
+                "body-md": [
+                        "Inter"
+                ],
+                "body-sm": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Inter"
+                ],
+                "display-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "body-lg": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest dark:bg-surface-container-highest docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center w-full px-margin-desktop h-16 sticky z-50">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">CivicSmart</span>
+</div>
+<div class="hidden md:flex flex-1 justify-center max-w-md mx-4">
+<!-- Search omitted for transactional flow -->
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors p-2 rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a municipal worker in a bright, modern office setting, representing the user profile for CivicSmart. The lighting is clean and institutional, conveying trust and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNzZll7SksISyvozOEo8jn4Y6hg_D_BkpHXG-5zkI4JTr9jBN_57PTQipm9Q6b-NFgb_BhpQqAFTUX-mLZxum4x1WCI2AbKH8AdB_7vBE7zXDioDv4I-g3PxzNgG7QHm-oB28vJcBK53EaJJAMUUVlcxtmGExr1xTnuchD81aEGgTIw46EFWyuyRChL-HZ89zH0bgA3PoU24RE3ZEeYAy8XzfyH4OZbYL-DQN3Z2AhHABPl7Q9Tp8Fp7OZBA98gxL8J82zQ5PtLoQ"/>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto w-full max-w-container-max-width mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<div class="max-w-2xl mx-auto">
+<div class="mb-stack-lg flex items-center justify-between">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-unit hidden md:block">Report an Issue</h1>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-unit md:hidden">Report an Issue</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Help us keep our city clean and safe.</p>
+</div>
+<button class="text-primary font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container-low px-4 py-2 rounded-lg transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">close</span> Cancel
+                    </button>
+</div>
+<!-- Step 1: Photo Upload -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 mb-stack-md shadow-sm">
+<h2 class="font-headline-md text-headline-md text-primary mb-stack-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">photo_camera</span> 1. Upload Photo
+                    </h2>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-low transition-colors min-h-[200px] relative overflow-hidden group" id="upload-zone">
+<div class="flex flex-col items-center gap-3" id="upload-prompt">
+<div class="w-16 h-16 bg-primary-fixed rounded-full flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">upload_file</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-primary">Drag &amp; drop or click to upload</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Supports JPG, PNG (Max 10MB)</p>
+</div>
+</div>
+<!-- Simulated Upload Preview -->
+<div class="hidden absolute inset-0 bg-surface-container-lowest flex flex-col items-center justify-center p-4" id="upload-preview">
+<div class="w-full h-32 bg-surface-container rounded-lg mb-4 overflow-hidden relative">
+<img alt="Uploaded Issue" class="w-full h-full object-cover" data-alt="A clear, daylight photograph of a pile of garbage bags and loose debris left on a sidewalk next to a generic city street. The image is framed as evidence of a civic issue, realistic and documentary in style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjUbnlAwNBfuzYNvNq2I_DK-J40YrKlYPKJt10R4TIxnah84VpUR_sXimPYVR-YnE577PAONOln0MEnm9CCE9iO3EtQyXOO6F3v8frbvzJUtJw54dzOHp9-VhZ47kNgXXFmmXBAJ8AkfsJu7gpbb6tjb_DCanE2aUOlmC7mDXIcJPOcTuJRkDijPF3lUJ9gH6lYkJhfDuQ4InNc2cORsmt1bOvUxfdE-XkabW6_NUk7bU7ivfE3UGGdyxKJS7uJWHBGGkuYLv23C8"/>
+<div class="absolute inset-0 bg-primary/20 flex items-center justify-center">
+<div class="bg-surface-container-lowest px-4 py-2 rounded-full font-label-sm text-label-sm text-primary flex items-center gap-2 shadow-md">
+<span class="material-symbols-outlined animate-spin" style="font-size: 16px;">sync</span>
+                                        AI Analyzing Photo...
+                                    </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Step 2: AI Analysis Results (Simulated Auto-fill) -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 mb-stack-md shadow-sm relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 bg-secondary h-full"></div>
+<h2 class="font-headline-md text-headline-md text-primary mb-stack-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">auto_awesome</span> 2. Issue Details
+                    </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 italic">Auto-detected from your photo. You can edit these details.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Category</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-outline-variant text-primary font-body-md rounded-lg py-2 pl-3 pr-10 focus:border-primary focus:ring-1 focus:ring-primary appearance-none">
+<option selected="" value="garbage">Garbage / Illegal Dumping</option>
+<option value="pothole">Pothole</option>
+<option value="graffiti">Graffiti</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Priority</label>
+<div class="flex gap-2">
+<span class="px-3 py-2 rounded-lg bg-surface-container border border-outline-variant font-body-sm text-body-sm text-on-surface-variant flex-1 text-center cursor-pointer hover:bg-surface-variant">Low</span>
+<span class="px-3 py-2 rounded-lg bg-tertiary-fixed-dim/20 border border-tertiary-fixed-dim font-body-sm text-body-sm text-on-tertiary-container flex-1 text-center cursor-pointer ring-1 ring-tertiary-fixed-dim">Medium</span>
+<span class="px-3 py-2 rounded-lg bg-surface-container border border-outline-variant font-body-sm text-body-sm text-on-surface-variant flex-1 text-center cursor-pointer hover:bg-surface-variant">High</span>
+</div>
+</div>
+</div>
+<div class="mb-4">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Location Detected</label>
+<div class="flex items-center gap-2 bg-surface-container px-3 py-2 rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<span class="font-body-md text-body-md text-primary flex-1">123 Civic Plaza, Downtown</span>
+<button class="text-secondary font-label-sm text-label-sm hover:underline">Edit</button>
+</div>
+</div>
+</section>
+<!-- Step 3: Description & Voice -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 mb-stack-lg shadow-sm">
+<h2 class="font-headline-md text-headline-md text-primary mb-stack-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">description</span> 3. Additional Notes
+                    </h2>
+<div class="relative">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Description (Optional)</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant text-primary font-body-md rounded-lg p-3 min-h-[100px] focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Provide any additional details..."></textarea>
+<div class="absolute bottom-3 right-3">
+<button class="w-10 h-10 bg-surface-container-low hover:bg-surface-variant text-primary rounded-full flex items-center justify-center transition-colors border border-outline-variant group" title="Use Voice to Text">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">mic</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Final Submit -->
+<div class="flex justify-end">
+<button class="bg-secondary hover:bg-on-secondary-container text-on-secondary font-label-md text-label-md py-4 px-8 rounded-xl flex items-center gap-2 transition-all shadow-md hover:shadow-lg w-full md:w-auto justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Confirm &amp; Report
+                    </button>
+</div>
+</div>
+</main>
+</div>
+<!-- Simulate interactions purely for visual demonstration -->
+<script>
+        document.getElementById('upload-zone').addEventListener('click', function() {
+            document.getElementById('upload-prompt').classList.add('hidden');
+            document.getElementById('upload-preview').classList.remove('hidden');
+            
+            // Simulate AI analysis delay
+            setTimeout(() => {
+                const badge = document.querySelector('#upload-preview .bg-surface-container-lowest');
+                badge.innerHTML = `<span class="material-symbols-outlined text-secondary" style="font-size: 16px;">check_circle</span> Analysis Complete`;
+            }, 2000);
+        });
+    </script>
+</body></html>

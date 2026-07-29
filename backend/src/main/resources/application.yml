@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: civic-resolve
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/civic_db}
+    username: ${SPRING_DATASOURCE_USERNAME:civic_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:civic_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+  jackson:
+    serialization:
+      write-dates-with-zone-id: false
+      write-dates-as-timestamps: false
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASS:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:change-me-in-production-use-a-64-char-hex-string}
+  expiration: 900000 # 15 minutes
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:}
+
+rewards:
+  top-contributor-percentile: 10

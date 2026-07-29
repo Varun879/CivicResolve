@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CivicSmart Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary-container": "#c88000",
+                        "surface": "#f7f9fb",
+                        "primary": "#091426",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-surface": "#191c1e",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed": "#d8e3fb",
+                        "on-secondary-container": "#00714d",
+                        "on-background": "#191c1e",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#201100",
+                        "surface-tint": "#545f73",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2d3133",
+                        "on-primary-container": "#8590a6",
+                        "surface-container": "#eceef0",
+                        "secondary": "#006c49",
+                        "inverse-primary": "#bcc7de",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-dim": "#d8dadc",
+                        "on-tertiary-fixed": "#2a1700",
+                        "outline-variant": "#c5c6cd",
+                        "primary-fixed-dim": "#bcc7de",
+                        "tertiary-fixed": "#ffddb8",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-container": "#6cf8bb",
+                        "background": "#f7f9fb",
+                        "on-surface-variant": "#45474c",
+                        "on-primary-fixed": "#111c2d",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "primary-container": "#1e293b",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary-container": "#3c2300",
+                        "on-secondary-fixed": "#002113",
+                        "on-error-container": "#93000a",
+                        "outline": "#75777d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max-width": "1280px",
+                        "gutter": "24px",
+                        "stack-lg": "32px",
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased flex w-full min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- SideNavBar (from JSON) -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col border-r border-outline-variant py-stack-lg bg-surface-container-low z-40 hidden md:flex">
+<!-- Header -->
+<div class="px-6 mb-8 flex items-center gap-4">
+<img alt="CivicSmart Admin" class="w-10 h-10 rounded-full object-cover bg-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOR-rPL_7T0wdgAoNuYWRhvyNviT-iHSsb18x99uUP6r5DSn0T0ZziSXI1KC9PoB3dfl1WnQJ4YfRNoBMW57jLCKNsiuTELbuzdBBQlIeafJgirww5iynYHqmQgMDKWRPeTPKRgHpsKbRaEF1uTAiCzk9KFsbmOcDf0EYFSUOhELFiNvnGeJwoZiD2r_s03_86F0Pvi34QpXZUdrNIsAPmcKRFfDuThrVj7Bo6ZXMLY1PrYvJp5Y7th57id4lVg8XulTsIItLqRV0"/>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">CivicSmart</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Officer Portal</p>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 px-4 flex flex-col gap-2 font-label-md text-label-md">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-stack-md bg-secondary-container text-on-secondary-container rounded-xl px-4 py-3 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+                Incidents
+            </a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+                Resources
+            </a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<!-- CTA & Footer -->
+<div class="px-4 mt-auto flex flex-col gap-4">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-lg shadow-sm hover:opacity-90 transition-opacity">
+                Report Issue
+            </button>
+<div class="border-t border-outline-variant pt-4 flex flex-col gap-2 font-label-md text-label-md">
+<a class="flex items-center gap-stack-md text-on-surface-variant px-4 py-2 hover:bg-surface-variant rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+                    Help Center
+                </a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-4 py-2 hover:bg-surface-variant rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+                    Logout
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-64 w-full">
+<!-- TopAppBar (from JSON) -->
+<header class="flex justify-between items-center w-full px-margin-desktop h-16 sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant">
+<!-- Search on left -->
+<div class="flex items-center gap-2 text-on-surface-variant bg-surface-container py-2 px-4 rounded-full w-64 focus-within:ring-2 ring-primary">
+<span class="material-symbols-outlined text-[20px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full font-body-sm text-body-sm p-0" placeholder="Search CivicSmart..." type="text"/>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:bg-surface-container-low transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<img class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A professional portrait of a municipal officer or civil servant, clear lighting, modern corporate aesthetic, neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGBKNHfolHFzRpguflmYRX3TY2fNQsiRxlnpo4v7qUkmDE7HHfYkMbh71QI6ketQ0yUIBC2M9CCnb8kHJ4wXiuejgSonMui50zud4-But4yPBu0-9yrS0w3IMwzvzQ6PDjcdtM1pn0afy19NcM9ETHelmZXega3Qi2K3gd83KfYYQTs4Kxk6E1ZfxgMldL6ht_aUoT4dZDqGfnFZ-2Eg11yQfIYRkf1BWzHOsdlfEGjjsYFXwPvCzGywpYATPb7t7QDomISIUntPE"/>
+</div>
+</header>
+<!-- Main Dashboard Canvas -->
+<main class="p-margin-desktop gap-gutter flex flex-col w-full max-w-container-max-width mx-auto">
+<!-- Hero Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+<div class="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary-fixed/20 to-transparent pointer-events-none rounded-r-xl"></div>
+<div class="flex flex-col gap-4 z-10 max-w-2xl">
+<h2 class="font-display-lg text-display-lg text-primary tracking-tight">Your City, Your Voice.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Report issues in seconds. Keep your neighborhood safe, clean, and functioning efficiently by logging civic concerns directly to city planning teams.</p>
+<div class="mt-4">
+<button class="bg-primary text-on-primary px-8 py-3 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity shadow-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                            Report New Issue
+                        </button>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mt-4">
+<!-- Left Column (Main Focus) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- My Recent Reports -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<div class="flex items-center justify-between mb-6 border-b border-outline-variant pb-4">
+<h3 class="font-headline-md text-headline-md text-primary">My Recent Reports</h3>
+<button class="font-label-md text-label-md text-primary hover:underline">View All</button>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Report Item 1 (Resolved) -->
+<div class="flex items-center gap-4 p-4 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors group">
+<img class="w-16 h-16 rounded-md object-cover flex-shrink-0" data-alt="A clear, high-resolution photo of a recently repaired pothole on an urban asphalt street, daylight, clean and safe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa5qYO_qjmTKyf2DMqW3hSwIDhLdRuDtvyNoVKg1gI73fMn5iV2ZmPTrfd0g-J5jRZD5ph5vyt372IWPQ7BhlQJbqX2bgk-Ac7dOlqE28INkUQpNoHrGnnBMCjwt_CzYyU0emaYfxTJ9MSNKHG6igPoxfT1fcXJZAvntIfdTVulFCJC9Uf14Xsex2WV2WCAto5uK5cXd_wZBR-7dp2D7TNrngJClgJUdbFusuuHNGQfgs978hbxhyfbc6JsFbgWlD64qwcJjuqv5c"/>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="font-label-md text-label-md text-primary">Pothole on 5th Avenue</h4>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Resolved</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Reported Oct 12 • Downtown District</p>
+</div>
+<button class="bg-surface-container-lowest border border-outline px-4 py-2 rounded font-label-md text-label-md text-primary opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                                    Track
+                                </button>
+</div>
+<!-- Report Item 2 (Reported/Pending) -->
+<div class="flex items-center gap-4 p-4 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors group">
+<img class="w-16 h-16 rounded-md object-cover flex-shrink-0" data-alt="A photo of a broken street lamp leaning slightly over a sidewalk, daytime, slightly overcast, highlighting urban infrastructure in need of repair." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsxxKsQf1RUSZzF8F8Pw9zurOhy5VNTxHpMXexZaSX61IIsyiloZqpEYpdExQuEAsnhMn_rifbKzAz63llTAzyOnHxlu3cL-mHoIDKGMcz4tL5eG-ZXN1-eoGIHLG-lz3-IlfUXQjYSvPenH4E0T9mTqYs4_ChS9c5OFO4yBpMIlIvf7jc8U4Gey2mSWSo6cmvwujWdLIVlKTfhbLXWYMphuDQDKKEAOM8uXr0J6PNl8TvnHoFxZkyMjq3ETW-cvgXLUtt1k0K1fo"/>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="font-label-md text-label-md text-primary">Broken Streetlight</h4>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Reported</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Reported Oct 14 • Northside</p>
+</div>
+<button class="bg-surface-container-lowest border border-outline px-4 py-2 rounded font-label-md text-label-md text-primary opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                                    Track
+                                </button>
+</div>
+</div>
+</section>
+<!-- Nearby Issues (Map View) -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col h-[400px]">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-md text-headline-md text-primary">Nearby Issues</h3>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                Downtown District
+                            </div>
+</div>
+<div class="flex-1 rounded-lg overflow-hidden relative border border-outline-variant">
+<!-- Map Placeholder -->
+<img class="w-full h-full object-cover absolute inset-0" data-alt="A highly detailed, clean, top-down digital map of an urban downtown district. Minimalist cartography style, light mode, with subtle gray and pale blue tones, featuring several circular pin markers indicating reported civic issues." data-location="Downtown District" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV-CGv1SgKzbdXTiiHUg48ZcGzxXW-1dSSlMfNMlbqyA4COe_KVQsCrWOsBLPhEf_SfFaaVOXdzrFl5hL37YHf0NvON7SypP2tUcZxfUp8AcWjbw5IOBL8AQnsboXT4a_g7Fe4iZNIuXqtEvXIOSTPSzOYmz_l8L4QFryK8sNUCy0ZTbGCjf4J0CsbXB7sJgyo5SREOr_eFU-ckOKLMJBSSc-6M9zIO_WeDBd6CcgQPCSYjjBdRl3J4-KbIYmNOVZKlpycQosDL0s"/>
+<!-- Floating Upvote Card on Map -->
+<div class="absolute bottom-4 left-4 right-4 bg-surface-container-lowest border border-outline-variant rounded-lg p-3 shadow-[0_10px_15px_-3px_rgb(0,0,0,0.1)] flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-error-container text-on-error-container flex items-center justify-center">
+<span class="material-symbols-outlined">water_drop</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-primary">Water Main Leak</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">200m away • 12 upvotes</p>
+</div>
+</div>
+<button class="text-primary hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center gap-1 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (Contextual & Stats) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- Impact Summary -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<div class="border-b border-outline-variant pb-4 mb-6">
+<h3 class="font-headline-md text-headline-md text-primary">Impact Summary</h3>
+</div>
+<!-- Rank & Points -->
+<div class="flex flex-col items-center justify-center p-6 bg-surface-container-low rounded-lg mb-6 border border-outline-variant border-dashed">
+<div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-3 shadow-inner">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-1">Gold Guardian</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Top 5% of contributors</p>
+<div class="mt-4 bg-surface-container-lowest px-4 py-2 rounded-full border border-outline-variant shadow-sm flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-primary">1,450</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Civic Points</span>
+</div>
+</div>
+<!-- Leaderboard Mini -->
+<div>
+<h5 class="font-label-md text-label-md text-on-surface-variant mb-3 uppercase tracking-wider">Neighborhood Leaders</h5>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between font-body-sm text-body-sm">
+<div class="flex items-center gap-2">
+<span class="font-bold text-primary w-4">1</span>
+<div class="w-6 h-6 rounded-full bg-surface-variant"></div>
+<span class="text-primary">Sarah J.</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2,100 pts</span>
+</div>
+<div class="flex items-center justify-between font-body-sm text-body-sm">
+<div class="flex items-center gap-2">
+<span class="font-bold text-primary w-4">2</span>
+<div class="w-6 h-6 rounded-full bg-surface-variant"></div>
+<span class="text-primary">Mike T.</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">1,850 pts</span>
+</div>
+<div class="flex items-center justify-between font-body-sm text-body-sm bg-surface-container-low -mx-2 px-2 py-1 rounded">
+<div class="flex items-center gap-2">
+<span class="font-bold text-primary w-4">3</span>
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px]">You</div>
+<span class="font-bold text-primary">Alex R.</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">1,450 pts</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

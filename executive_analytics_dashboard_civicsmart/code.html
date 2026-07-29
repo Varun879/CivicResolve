@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Municipal Commissioner Analytics Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e6e8ea",
+                      "on-tertiary-container": "#c88000",
+                      "surface": "#f7f9fb",
+                      "primary": "#091426",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-surface": "#191c1e",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#4edea3",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#e0e3e5",
+                      "inverse-on-surface": "#eff1f3",
+                      "primary-fixed": "#d8e3fb",
+                      "on-secondary-container": "#00714d",
+                      "on-background": "#191c1e",
+                      "on-primary": "#ffffff",
+                      "tertiary": "#201100",
+                      "surface-tint": "#545f73",
+                      "error": "#ba1a1a",
+                      "inverse-surface": "#2d3133",
+                      "on-primary-container": "#8590a6",
+                      "surface-container": "#eceef0",
+                      "secondary": "#006c49",
+                      "inverse-primary": "#bcc7de",
+                      "secondary-fixed": "#6ffbbe",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface-container-low": "#f2f4f6",
+                      "surface-dim": "#d8dadc",
+                      "on-tertiary-fixed": "#2a1700",
+                      "outline-variant": "#c5c6cd",
+                      "primary-fixed-dim": "#bcc7de",
+                      "tertiary-fixed": "#ffddb8",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#f7f9fb",
+                      "secondary-container": "#6cf8bb",
+                      "background": "#f7f9fb",
+                      "on-surface-variant": "#45474c",
+                      "on-primary-fixed": "#111c2d",
+                      "on-primary-fixed-variant": "#3c475a",
+                      "primary-container": "#1e293b",
+                      "surface-container-highest": "#e0e3e5",
+                      "tertiary-container": "#3c2300",
+                      "on-secondary-fixed": "#002113",
+                      "on-error-container": "#93000a",
+                      "outline": "#75777d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-max-width": "1280px",
+                      "gutter": "24px",
+                      "stack-lg": "32px",
+                      "margin-desktop": "32px",
+                      "margin-mobile": "16px",
+                      "unit": "4px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px"
+              },
+              "fontFamily": {
+                      "body-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar (from JSON) -->
+<nav class="fixed left-0 top-0 h-screen w-64 flex flex-col border-r border-outline-variant dark:border-outline py-stack-lg bg-surface-container-low dark:bg-surface-container-high hidden md:flex z-40">
+<div class="px-4 mb-stack-lg">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">CivicSmart</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-surface-variant">Officer Portal</p>
+</div>
+<div class="px-4 mb-stack-lg">
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded font-label-md text-label-md hover:opacity-90 transition-opacity">
+                Report Issue
+            </button>
+</div>
+<ul class="flex-1 px-2 space-y-1">
+<li>
+<a class="flex items-center gap-stack-md bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-xl px-4 py-3 font-label-md text-label-md hover:bg-surface-variant dark:hover:bg-inverse-surface transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md text-on-surface-variant dark:text-surface-variant px-4 py-3 font-label-md text-label-md hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+                    Incidents
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md text-on-surface-variant dark:text-surface-variant px-4 py-3 font-label-md text-label-md hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+                    Resources
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md text-on-surface-variant dark:text-surface-variant px-4 py-3 font-label-md text-label-md hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                    Analytics
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md text-on-surface-variant dark:text-surface-variant px-4 py-3 font-label-md text-label-md hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+<ul class="px-2 space-y-1 mt-auto">
+<li>
+<a class="flex items-center gap-stack-md text-on-surface-variant dark:text-surface-variant px-4 py-3 font-label-md text-label-md hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+                    Help Center
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md text-on-surface-variant dark:text-surface-variant px-4 py-3 font-label-md text-label-md hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+                    Logout
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar (from JSON) -->
+<header class="flex justify-between items-center w-full px-margin-desktop h-16 sticky top-0 z-30 bg-surface-container-lowest dark:bg-surface-container-highest border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed md:hidden">CivicSmart</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a municipal commissioner in a modern, well-lit office setting. The lighting is soft and bright, emphasizing a competent and institutional aesthetic suitable for a dashboard avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGc3W7stDo4LXDBXobIQxZZfaFJbb1pDQHvrHGD4wzggkxUh7CPjuh8FPgtdmdEoS1WSWqiuFv5o22XZGTMaPBOeSGOvicqgFbmz7tKpSYGDP8lCvP5ASODUgFjpOptjxtdAr5DHABT3dX3UB3lnwz98kbTQ6x0mOMulvsu63kQNgwd6CFjtfIUoweYrB1zWZTZ1ZOEaUvGPrmCJiiiV9kK2Tzj3jQYkKziJTkCqwjncgDuG28msEiqInIBLbb5yPAR89mGTIzyNI"/>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<main class="flex-1 p-margin-desktop md:p-margin-desktop p-margin-mobile">
+<div class="mb-stack-lg">
+<h2 class="font-headline-lg text-headline-lg text-primary">Commissioner Analytics</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Real-time city infrastructure and incident overview.</p>
+</div>
+<!-- Top-level metrics Bento -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-stack-lg">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant">Total Complaints</span>
+<span class="material-symbols-outlined text-primary">forum</span>
+</div>
+<div class="font-display-lg text-display-lg text-primary">12,450</div>
+<div class="mt-2 text-sm text-error flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+                        +5.2% this week
+                    </div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant">Resolved</span>
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+</div>
+<div class="font-display-lg text-display-lg text-primary">78%</div>
+<div class="mt-2 text-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+                        +2.1% this week
+                    </div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant">Avg Resolution Time</span>
+<span class="material-symbols-outlined text-primary">timer</span>
+</div>
+<div class="font-display-lg text-display-lg text-primary">48h</div>
+<div class="mt-2 text-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">horizontal_rule</span>
+                        No change
+                    </div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant">Escalation Rate</span>
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+<div class="font-display-lg text-display-lg text-primary">4.2%</div>
+<div class="mt-2 text-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">trending_down</span>
+                        -1.5% this week
+                    </div>
+</div>
+</div>
+<!-- Main Visualizations Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Center Column: Maps & Charts (Spans 2) -->
+<div class="lg:col-span-2 flex flex-col gap-gutter">
+<!-- Ward-wise Heatmap -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h3 class="font-headline-md text-headline-md text-primary mb-4 border-b border-outline-variant pb-2">Ward-wise Problem Density</h3>
+<div class="w-full h-80 rounded-lg overflow-hidden bg-surface-container relative">
+<!-- Placeholder for actual map implementation -->
+<img class="w-full h-full object-cover" data-alt="A stylized, modern high-resolution heatmap overlay on a minimalist city map. The map uses a light-mode corporate aesthetic with subtle gray roads and buildings. Heat signatures use a palette of deep slate blue to vibrant emerald green and amber to indicate problem densities. The overall look is data-rich and highly professional." data-location="Metropolis" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtbh9yVKufBAH3mVLikzcgvhQRDsLJ8SfhMa24DUevkepkXYhh0PKg9SvPJxY0DdGBd0KPGH1b4TKKzD4kQe-Fu7NjLAHvWCiS05ZhwsbdgXtAQNTkMR52vNAf0A4O1yJJcKQO4pG7XxIc5eJHVpdnAezSq4z5AUqEAKZb5yB4eNV1MXQOgfCm13Ysw7wF4k7soUcSaj8cd1xtpIFmNdlDVd48UTjuCsJiJm3rwT2nHe9HTtVqvUyCPirlZUJTmq7_wr7NbTReqO8"/>
+</div>
+</div>
+<!-- Department Performance & SLA -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Dept Performance Bar Chart Placeholder -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-4 border-b border-outline-variant pb-2">Department Performance</h3>
+<div class="h-48 flex items-end gap-2 justify-around pt-4">
+<div class="w-full flex flex-col items-center gap-2">
+<div class="w-8 bg-primary rounded-t-sm" style="height: 80%;"></div>
+<span class="text-[10px] text-on-surface-variant">Health</span>
+</div>
+<div class="w-full flex flex-col items-center gap-2">
+<div class="w-8 bg-primary-fixed-dim rounded-t-sm" style="height: 60%;"></div>
+<span class="text-[10px] text-on-surface-variant">Works</span>
+</div>
+<div class="w-full flex flex-col items-center gap-2">
+<div class="w-8 bg-secondary rounded-t-sm" style="height: 90%;"></div>
+<span class="text-[10px] text-on-surface-variant">Power</span>
+</div>
+<div class="w-full flex flex-col items-center gap-2">
+<div class="w-8 bg-surface-tint rounded-t-sm" style="height: 40%;"></div>
+<span class="text-[10px] text-on-surface-variant">Water</span>
+</div>
+</div>
+</div>
+<!-- SLA Trend Line Chart Placeholder -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-4 border-b border-outline-variant pb-2">SLA Compliance Trend</h3>
+<div class="h-48 w-full bg-surface relative rounded-sm border border-outline-variant">
+<!-- Abstract representation of a line chart -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,80 L20,60 L40,70 L60,40 L80,50 L100,20" fill="none" stroke="#091426" stroke-width="2"></path>
+<path d="M0,100 L0,80 L20,60 L40,70 L60,40 L80,50 L100,20 L100,100 Z" fill="#d8e3fb" opacity="0.3"></path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Critical Escalations -->
+<div class="flex flex-col gap-gutter">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl flex flex-col h-full overflow-hidden">
+<div class="p-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-primary">Critical Escalations</h3>
+<span class="bg-error-container text-on-error-container font-label-sm text-label-sm px-2 py-1 rounded">Action Req</span>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-4">
+<!-- Escalation Item -->
+<div class="border-l-4 border-error pl-3 py-1">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-primary">Water Main Break - Ward 4</span>
+<span class="text-[10px] text-error font-bold">84h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Major flooding reported on 5th Ave. Public Works department dispatched but no status update logged in system.</p>
+<button class="mt-2 text-[12px] text-primary underline font-semibold">View Details</button>
+</div>
+<hr class="border-outline-variant opacity-50"/>
+<!-- Escalation Item -->
+<div class="border-l-4 border-error pl-3 py-1">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-primary">Pothole Cluster - Ward 12</span>
+<span class="text-[10px] text-error font-bold">96h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Severe road damage causing traffic delays. Assigned to sub-contractor, pending material delivery confirmation.</p>
+<button class="mt-2 text-[12px] text-primary underline font-semibold">View Details</button>
+</div>
+<hr class="border-outline-variant opacity-50"/>
+<!-- Escalation Item -->
+<div class="border-l-4 border-tertiary-fixed-dim pl-3 py-1">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-primary">Streetlight Outage - Ward 2</span>
+<span class="text-[10px] text-tertiary-fixed-dim font-bold">74h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Entire block dark. Power department investigating potential transformer issue.</p>
+<button class="mt-2 text-[12px] text-primary underline font-semibold">View Details</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
