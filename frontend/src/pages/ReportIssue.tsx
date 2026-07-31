@@ -234,7 +234,7 @@ export default function ReportIssue() {
 
         {/* Final Submit */}
         <div className="flex justify-end mb-8">
-          <button onClick={handleSubmit} disabled={submitting || aiAnalyzing} className="bg-secondary hover:bg-on-secondary-container text-on-secondary font-label-md text-label-md py-4 px-8 rounded-xl flex items-center gap-2 transition-all shadow-md hover:shadow-lg w-full md:w-auto justify-center disabled:opacity-50">
+          <button onClick={handleSubmit} disabled={submitting || aiAnalyzing} className="bg-secondary hover:bg-primary-fixed-dim text-on-secondary font-label-md text-label-md py-4 px-8 rounded-xl flex items-center gap-2 transition-all shadow-md hover:shadow-lg w-full md:w-auto justify-center disabled:opacity-50">
             <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
             {submitting ? 'Submitting...' : 'Confirm & Report'}
           </button>

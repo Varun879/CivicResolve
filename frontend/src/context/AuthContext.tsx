@@ -18,7 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('civic_user') || sessionStorage.getItem('civic_user');
+    const savedUser = sessionStorage.getItem('civic_user');
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
@@ -34,12 +34,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('civic_token') || sessionStorage.getItem('civic_token') || localStorage.getItem('civic_jwt') || sessionStorage.getItem('civic_jwt');
+    return sessionStorage.getItem('civic_token');
   });
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('civic_token') || sessionStorage.getItem('civic_token') || localStorage.getItem('civic_jwt');
-    const savedUser = localStorage.getItem('civic_user') || sessionStorage.getItem('civic_user');
+    const savedToken = sessionStorage.getItem('civic_token');
+    const savedUser = sessionStorage.getItem('civic_user');
     
     if (savedToken && savedUser) {
       setToken(savedToken);
@@ -62,11 +62,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setUser(newUser);
     setToken(newToken);
-    localStorage.setItem('civic_token', newToken);
-    localStorage.setItem('civic_jwt', newToken);
-    localStorage.setItem('civic_user', JSON.stringify(newUser));
+    
+    // We only use sessionStorage now to fix the tab re-opening mock user bug
+    // and rely on the HttpOnly cookie for real authentication.
     sessionStorage.setItem('civic_token', newToken);
-    sessionStorage.setItem('civic_jwt', newToken);
     sessionStorage.setItem('civic_user', JSON.stringify(newUser));
   };
 
@@ -79,6 +78,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     sessionStorage.removeItem('civic_token');
     sessionStorage.removeItem('civic_jwt');
     sessionStorage.removeItem('civic_user');
+    
+    // Also notify backend to clear the cookie
+    import('../api/client').then(({ apiClient }) => {
+      apiClient.post('/auth/logout').catch(() => {});
+    });
   };
 
   return (

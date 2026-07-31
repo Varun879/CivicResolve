@@ -215,10 +215,26 @@ public class ComplaintController {
 
     @PostMapping("/{id}/escalate")
     @PreAuthorize("hasAnyRole('CITIZEN', 'FIELD_OFFICER', 'DEPT_HEAD', 'COMMISSIONER', 'SUPER_ADMIN')")
-    public ResponseEntity<ComplaintResponse> manualEscalate(@PathVariable java.util.UUID id) {
+    public ResponseEntity<ComplaintResponse> manualEscalate(
+            @PathVariable java.util.UUID id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
         Complaint complaint = complaintRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Complaint not found"));
         
+        User caller = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean isCreator = caller.getId().equals(complaint.getCitizen().getId());
+        boolean isAssignedOfficer = complaint.getAssignedOfficerId() != null && caller.getId().equals(complaint.getAssignedOfficerId());
+        boolean isDeptHeadOrAbove = caller.getRole() == com.civic.platform.domain.enums.Role.DEPT_HEAD || 
+                                    caller.getRole() == com.civic.platform.domain.enums.Role.COMMISSIONER || 
+                                    caller.getRole() == com.civic.platform.domain.enums.Role.SUPER_ADMIN;
+
+        if (!isCreator && !isAssignedOfficer && !isDeptHeadOrAbove) {
+             throw new org.springframework.security.access.AccessDeniedException("Not authorized to escalate this complaint");
+        }
+
         complaint.setSlaDeadline(java.time.ZonedDateTime.now().minusHours(1));
         complaintRepository.save(complaint);
         sseService.emitComplaintUpdate(complaint.getId());

@@ -3,11 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { fetchComplaints, fetchNearbyComplaints, type Complaint } from '../api/complaints';
 import { fetchUserRewards, type RewardData } from '../api/rewards';
 
+const formatDate = (dateString?: string) => {
+  if (!dateString) return 'Not Available';
+  return new Date(dateString).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+const formatEnum = (value?: string) => {
+  if (!value) return 'Not Available';
+  return value.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+};
+
 export default function CitizenDashboard() {
   const [myComplaints, setMyComplaints] = useState<Complaint[]>([]);
   const [nearbyComplaints, setNearbyComplaints] = useState<Complaint[]>([]);
   const [rewards, setRewards] = useState<RewardData | null>(null);
   const [activeTab, setActiveTab] = useState<'my_reports' | 'nearby_5km'>('my_reports');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'RESOLVED'>('ALL');
   const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
   const [locationStatus, setLocationStatus] = useState<'requesting' | 'granted' | 'denied'>('requesting');
   const [neighborhood, setNeighborhood] = useState<string>('Local Municipal Zone');
@@ -190,30 +205,42 @@ export default function CitizenDashboard() {
           {/* Reports Section with Tabs */}
           <section className="bg-surface border border-border-default rounded-xl p-6 shadow-sm">
             {/* 3. TABS: Strengthened active underline (color + thickness), animated transition, distinct hover state */}
-            <div className="flex items-center justify-between mb-6 border-b border-border-default pb-0 flex-wrap gap-4">
-              <div className="flex items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-border-default pb-0 gap-4">
+              <div className="flex items-center gap-6 overflow-x-auto w-full sm:w-auto">
                 <button
                   onClick={() => setActiveTab('my_reports')}
-                  className={`font-headline-md text-sm md:text-base pb-3 border-b-4 transition-all duration-150 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded-t-lg px-2 cursor-pointer ${
+                  className={`font-headline-md text-sm md:text-base pb-3 border-b-4 transition-all duration-150 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded-t-lg px-2 cursor-pointer whitespace-nowrap ${
                     activeTab === 'my_reports'
                       ? 'text-brand-primary border-brand-primary font-bold shadow-xs'
                       : 'text-ink-secondary border-transparent hover:text-brand-primary hover:border-brand-primary/50 hover:bg-brand-primary/10 font-medium'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[18px]">person_pin</span>
+                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">person_pin</span>
                   My Recent Reports ({myComplaints.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('nearby_5km')}
-                  className={`font-headline-md text-sm md:text-base pb-3 border-b-4 transition-all duration-150 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded-t-lg px-2 cursor-pointer ${
+                  className={`font-headline-md text-sm md:text-base pb-3 border-b-4 transition-all duration-150 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded-t-lg px-2 cursor-pointer whitespace-nowrap ${
                     activeTab === 'nearby_5km'
                       ? 'text-brand-primary border-brand-primary font-bold shadow-xs'
                       : 'text-ink-secondary border-transparent hover:text-brand-primary hover:border-brand-primary/50 hover:bg-brand-primary/10 font-medium'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[18px] text-brand-primary">location_on</span>
+                  <span className="material-symbols-outlined text-[18px] text-brand-primary" aria-hidden="true">location_on</span>
                   Nearby Issues ({nearbyComplaints.length})
                 </button>
+              </div>
+              <div className="pb-3 flex-shrink-0">
+                <select 
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  className="bg-surface border border-border-default rounded-md px-3 py-1.5 text-sm font-label-md text-ink-primary focus:outline-none focus:ring-2 focus:ring-brand-primary cursor-pointer shadow-sm"
+                  aria-label="Filter complaints by status"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="ACTIVE">Active (In Progress)</option>
+                  <option value="RESOLVED">Resolved / Closed</option>
+                </select>
               </div>
             </div>
 
@@ -234,111 +261,133 @@ export default function CitizenDashboard() {
               </div>
             ) : (
               <div className="flex flex-col gap-4">
-                {/* 3. TABS: Empty state with icon + CTA */}
-                {(activeTab === 'my_reports' ? myComplaints : nearbyComplaints).length === 0 && (
-                  <div className="flex flex-col items-center justify-center p-12 text-center bg-page/40 rounded-xl border border-border-default border-dashed gap-4 animate-in fade-in duration-200">
-                    <div className="w-16 h-16 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shadow-inner">
-                      <span className="material-symbols-outlined text-[32px]">campaign</span>
-                    </div>
-                    <div>
-                      <h4 className="font-headline-md text-label-lg font-bold text-ink-primary mb-1">
-                        {activeTab === 'my_reports' ? 'No reports submitted yet' : 'No nearby issues found'}
-                      </h4>
-                      <p className="font-body-sm text-sm text-ink-secondary max-w-sm mx-auto">
-                        {activeTab === 'my_reports'
-                          ? 'You have not logged any civic issues yet. Be the first to speak up and improve your neighborhood!'
-                          : 'There are currently no active community concerns reported within 5 km of your GPS location.'}
-                      </p>
-                    </div>
-                    {activeTab === 'my_reports' && (
-                      <button
-                        onClick={() => navigate('/citizen/report')}
-                        className="mt-2 bg-brand-primary text-white px-6 py-2.5 rounded-lg font-label-md text-sm font-bold flex items-center gap-2 hover:brightness-90 hover:scale-[1.02] shadow-sm hover:shadow-md transition-all duration-150 ease-in-out focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:outline-none cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                        Report Your First Issue
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {(activeTab === 'my_reports' ? myComplaints : nearbyComplaints).map(comp => {
-                  const slaDate = comp.slaDeadline ? new Date(comp.slaDeadline) : null;
-                  const isOverdue = slaDate ? slaDate.getTime() < Date.now() : false;
-                  const totalSlaTime = slaDate ? (slaDate.getTime() - new Date(comp.createdAt).getTime()) : 1;
-                  const timePassed = slaDate ? (Date.now() - new Date(comp.createdAt).getTime()) : 0;
-                  let slaProgress = slaDate ? Math.min(100, Math.max(0, (timePassed / totalSlaTime) * 100)) : 0;
-                  const daysLeft = slaDate ? Math.ceil((slaDate.getTime() - Date.now()) / (1000 * 3600 * 24)) : 0;
+                {/* Dynamic List Render with Filtering */}
+                {(() => {
+                  const baseList = activeTab === 'my_reports' ? myComplaints : nearbyComplaints;
                   
-                  let priorityColor = "bg-accent-amber";
-                  if (comp.status === 'RESOLVED') priorityColor = "bg-accent-green";
-                  else if (isOverdue) priorityColor = "bg-accent-red";
+                  if (baseList.length === 0) {
+                    return (
+                      <div className="flex flex-col items-center justify-center p-12 text-center bg-page/40 rounded-xl border border-border-default border-dashed gap-4 animate-in fade-in duration-200">
+                        <div className="w-16 h-16 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shadow-inner">
+                          <span className="material-symbols-outlined text-[32px]" aria-hidden="true">campaign</span>
+                        </div>
+                        <div>
+                          <h4 className="font-headline-md text-label-lg font-bold text-ink-primary mb-1">
+                            {activeTab === 'my_reports' ? 'No reports submitted yet' : 'No nearby issues found'}
+                          </h4>
+                          <p className="font-body-sm text-sm text-ink-secondary max-w-sm mx-auto">
+                            {activeTab === 'my_reports'
+                              ? 'You have not logged any civic issues yet. Be the first to speak up and improve your neighborhood!'
+                              : 'There are currently no active community concerns reported within 5 km of your GPS location.'}
+                          </p>
+                        </div>
+                        {activeTab === 'my_reports' && (
+                          <button
+                            onClick={() => navigate('/citizen/report')}
+                            className="mt-2 bg-brand-primary text-white px-6 py-2.5 rounded-lg font-label-md text-sm font-bold flex items-center gap-2 hover:brightness-90 hover:scale-[1.02] shadow-sm hover:shadow-md transition-all duration-150 ease-in-out focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:outline-none cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">add_circle</span>
+                            Report Your First Issue
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }
 
-                  let ribbonColor = "bg-accent-green";
-                  if (slaProgress > 75) ribbonColor = "bg-accent-red";
-                  else if (slaProgress > 50) ribbonColor = "bg-accent-amber";
-                  if (comp.status === 'RESOLVED') ribbonColor = "bg-accent-green";
+                  const filteredList = baseList.filter(comp => {
+                    if (statusFilter === 'ACTIVE') return comp.status !== 'RESOLVED' && comp.status !== 'CLOSED';
+                    if (statusFilter === 'RESOLVED') return comp.status === 'RESOLVED' || comp.status === 'CLOSED';
+                    return true;
+                  });
 
-                  return (
-                  <div key={comp.id} className="relative flex items-center gap-4 p-4 border border-border-default bg-surface rounded-lg hover:border-brand-primary hover:bg-brand-primary/5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 ease-in-out group shadow-sm overflow-hidden pl-5 cursor-pointer">
-                    {/* Priority Tab */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${priorityColor}`}></div>
+                  if (filteredList.length === 0) {
+                    return (
+                      <div className="flex flex-col items-center justify-center p-8 text-center bg-page/40 rounded-xl border border-border-default border-dashed gap-4 animate-in fade-in duration-200">
+                        <span className="material-symbols-outlined text-4xl text-ink-secondary/50" aria-hidden="true">filter_list_off</span>
+                        <p className="text-ink-secondary font-label-md">No reports match the selected filter.</p>
+                      </div>
+                    );
+                  }
+
+                  return filteredList.map(comp => {
+                    const slaDate = comp.slaDeadline ? new Date(comp.slaDeadline) : null;
+                    const isOverdue = slaDate ? slaDate.getTime() < Date.now() : false;
+                    const totalSlaTime = slaDate ? (slaDate.getTime() - new Date(comp.createdAt).getTime()) : 1;
+                    const timePassed = slaDate ? (Date.now() - new Date(comp.createdAt).getTime()) : 0;
+                    let slaProgress = slaDate ? Math.min(100, Math.max(0, (timePassed / totalSlaTime) * 100)) : 0;
+                    const daysLeft = slaDate ? Math.ceil((slaDate.getTime() - Date.now()) / (1000 * 3600 * 24)) : 0;
                     
-                    {/* SLA Ribbon */}
-                    {comp.status !== 'RESOLVED' && (
-                      <div className="absolute top-0 left-1.5 right-0 h-1 bg-border-default opacity-30">
-                        <div className={`h-full ${ribbonColor}`} style={{ width: `${slaProgress}%` }}></div>
-                      </div>
-                    )}
+                    let priorityColor = "bg-accent-amber";
+                    if (comp.status === 'RESOLVED' || comp.status === 'CLOSED') priorityColor = "bg-accent-green";
+                    else if (isOverdue) priorityColor = "bg-accent-red";
 
-                    <div className="w-16 h-16 rounded border border-border-default bg-page flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden mt-1 shadow-xs">
-                      {comp.imageBase64 ? (
-                        <img src={comp.imageBase64.startsWith('data:') ? comp.imageBase64 : `data:image/jpeg;base64,${comp.imageBase64}`} alt="Complaint thumbnail" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
-                      ) : (
-                        <span className="text-ink-secondary text-xs text-center">No image</span>
+                    let ribbonColor = "bg-accent-green";
+                    if (slaProgress > 75) ribbonColor = "bg-accent-red";
+                    else if (slaProgress > 50) ribbonColor = "bg-accent-amber";
+                    if (comp.status === 'RESOLVED' || comp.status === 'CLOSED') ribbonColor = "bg-accent-green";
+
+                    return (
+                    <div key={comp.id} className="relative flex items-center gap-4 p-4 border border-border-default bg-surface rounded-lg hover:border-brand-primary hover:bg-brand-primary/5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 ease-in-out group shadow-sm overflow-hidden pl-5 cursor-pointer" onClick={() => navigate(`/citizen/complaint/${comp.id}`)}>
+                      {/* Priority Tab */}
+                      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${priorityColor}`}></div>
+                      
+                      {/* SLA Ribbon */}
+                      {comp.status !== 'RESOLVED' && comp.status !== 'CLOSED' && (
+                        <div className="absolute top-0 left-1.5 right-0 h-1 bg-border-default opacity-30">
+                          <div className={`h-full ${ribbonColor}`} style={{ width: `${slaProgress}%` }}></div>
+                        </div>
                       )}
-                    </div>
-                    <div className="flex-1 overflow-hidden mt-1">
-                      <div className="flex items-center gap-3 mb-1 flex-wrap">
-                        <span className="font-mono text-[13px] text-ink-secondary font-medium">{comp.publicId || 'N/A'}</span>
-                        <h4 className="font-headline-md text-label-md text-ink-primary truncate font-bold group-hover:text-brand-primary transition-colors">{comp.category}</h4>
-                        
-                        {/* Stamped Chip */}
-                        <span className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-bold uppercase tracking-wide ${
-                          comp.status === 'RESOLVED' ? 'border-accent-green text-accent-green bg-accent-green/10' : 'border-accent-amber text-accent-amber bg-accent-amber/10'
-                        }`}>
-                          <span className="material-symbols-outlined text-[12px]" style={{fontVariationSettings: "'FILL' 1"}}>
-                            {comp.status === 'RESOLVED' ? 'check_circle' : 'pending'}
-                          </span>
-                          {comp.status}
-                        </span>
-                        {activeTab === 'nearby_5km' && comp.distanceToOfficerKm !== undefined && (
-                          <span className="text-xs bg-brand-primary/10 text-brand-primary font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-brand-primary/30 shadow-xs">
-                            <span className="material-symbols-outlined text-[12px]">location_on</span>
-                            {comp.distanceToOfficerKm.toFixed(1)} km away
-                          </span>
+
+                      <div className="w-16 h-16 rounded border border-border-default bg-page flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden mt-1 shadow-xs">
+                        {comp.imageBase64 ? (
+                          <img src={comp.imageBase64.startsWith('data:') ? comp.imageBase64 : `data:image/jpeg;base64,${comp.imageBase64}`} alt="Complaint thumbnail" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                        ) : (
+                          <span className="material-symbols-outlined text-ink-secondary/50 text-[32px]" aria-hidden="true">image_not_supported</span>
                         )}
                       </div>
-                      <p className="font-body-sm text-body-sm text-ink-secondary truncate mb-1.5">{comp.description}</p>
-                      <div className="flex items-center gap-3 font-mono text-[11px] text-ink-secondary">
-                        <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">calendar_today</span>{new Date(comp.createdAt).toLocaleDateString()}</span>
-                        {slaDate && comp.status !== 'RESOLVED' && (
-                          <span className={`flex items-center gap-1 ${isOverdue ? 'text-accent-red font-bold animate-pulse' : ''}`}>
-                            <span className="material-symbols-outlined text-[14px]">{isOverdue ? 'warning' : 'schedule'}</span>
-                            {isOverdue ? 'Overdue' : `${daysLeft} days left`}
+                      <div className="flex-1 overflow-hidden mt-1">
+                        <div className="flex items-center gap-3 mb-1 flex-wrap">
+                          <span className="font-mono text-[13px] text-ink-secondary font-medium">{comp.publicId || 'ID Not Available'}</span>
+                          <h4 className="font-headline-md text-label-md text-ink-primary truncate font-bold group-hover:text-brand-primary transition-colors">{formatEnum(comp.category)}</h4>
+                          
+                          {/* Stamped Chip */}
+                          <span className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-bold uppercase tracking-wide ${
+                            (comp.status === 'RESOLVED' || comp.status === 'CLOSED') ? 'border-accent-green text-accent-green bg-accent-green/10' : 'border-accent-amber text-accent-amber bg-accent-amber/10'
+                          }`}>
+                            <span className="material-symbols-outlined text-[12px]" style={{fontVariationSettings: "'FILL' 1"}} aria-hidden="true">
+                              {(comp.status === 'RESOLVED' || comp.status === 'CLOSED') ? 'check_circle' : 'pending'}
+                            </span>
+                            {formatEnum(comp.status)}
                           </span>
-                        )}
+                          {activeTab === 'nearby_5km' && comp.distanceToOfficerKm !== undefined && (
+                            <span className="text-xs bg-brand-primary/10 text-brand-primary font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-brand-primary/30 shadow-xs">
+                              <span className="material-symbols-outlined text-[12px]" aria-hidden="true">location_on</span>
+                              {comp.distanceToOfficerKm.toFixed(1)} km away
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-body-sm text-body-sm text-ink-secondary truncate mb-1.5">{comp.description || 'No description provided.'}</p>
+                        <div className="flex items-center gap-4 flex-wrap font-mono text-[11px] text-ink-secondary">
+                          <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]" aria-hidden="true">calendar_today</span>{formatDate(comp.createdAt)}</span>
+                          <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]" aria-hidden="true">engineering</span>{comp.assignedOfficerName ? `Assigned: ${comp.assignedOfficerName}` : 'Unassigned'}</span>
+                          {slaDate && comp.status !== 'RESOLVED' && comp.status !== 'CLOSED' && (
+                            <span className={`flex items-center gap-1 ${isOverdue ? 'text-accent-red font-bold animate-pulse' : ''}`}>
+                              <span className="material-symbols-outlined text-[14px]" aria-hidden="true">{isOverdue ? 'warning' : 'schedule'}</span>
+                              {isOverdue ? 'Overdue' : `${daysLeft} days left`}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      <button
+                        className="bg-surface border border-brand-primary px-4 py-2 rounded-md font-label-md text-sm font-bold text-brand-primary opacity-90 sm:opacity-0 group-hover:opacity-100 hover:brightness-90 hover:scale-[1.02] hover:bg-brand-primary/10 transition-all duration-150 ease-in-out focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:outline-none focus:opacity-100 shadow-sm hover:shadow-md whitespace-nowrap cursor-pointer"
+                        aria-label="Track Issue"
+                      >
+                        Track Issue →
+                      </button>
                     </div>
-                    {/* 4. HOVER / INTERACTION STATES: Darken on hover, 1.02 scale + soft shadow, 150ms transition, focus ring */}
-                    <button
-                      onClick={() => navigate(`/citizen/complaint/${comp.id}`)}
-                      className="bg-surface border border-brand-primary px-4 py-2 rounded-md font-label-md text-sm font-bold text-brand-primary opacity-90 sm:opacity-0 group-hover:opacity-100 hover:brightness-90 hover:scale-[1.02] hover:bg-brand-primary/10 transition-all duration-150 ease-in-out focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:outline-none focus:opacity-100 shadow-sm hover:shadow-md whitespace-nowrap cursor-pointer"
-                    >
-                      Track Issue →
-                    </button>
-                  </div>
-                )})}
+                    )
+                  });
+                })()}
               </div>
             )}
           </section>
@@ -405,7 +454,7 @@ export default function CitizenDashboard() {
                   <div className="w-full h-2.5 bg-border-default/60 rounded-full overflow-hidden shadow-inner">
                     <div 
                       className="h-full bg-gradient-to-r from-brand-primary to-accent-green rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${Math.min(100, Math.max(5, ((rewards?.points || 0) / ((rewards?.points || 0) + (rewards?.pointsToNextTier || 100))) * 100))}%` }}
+                      style={{ width: `${Math.min(100, Math.max(0, ((rewards?.points || 0) / ((rewards?.points || 0) + (rewards?.pointsToNextTier || 100))) * 100))}%` }}
                     ></div>
                   </div>
                   <p className="text-[11px] text-center text-ink-secondary mt-2">

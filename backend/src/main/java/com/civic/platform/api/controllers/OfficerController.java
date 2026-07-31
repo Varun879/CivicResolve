@@ -56,6 +56,10 @@ public class OfficerController {
         Complaint complaint = complaintRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Complaint not found"));
 
+        if (complaint.getAssignedOfficerId() != null && !officer.getId().equals(complaint.getAssignedOfficerId())) {
+            throw new org.springframework.security.access.AccessDeniedException("Not authorized: complaint not assigned to this officer");
+        }
+
         ComplaintStatus status = request.getStatus();
 
         if (complaint.getAssignedOfficerId() == null || status == ComplaintStatus.ACCEPTED) {
@@ -74,8 +78,8 @@ public class OfficerController {
                         complaint.getLatitude().doubleValue(), complaint.getLongitude().doubleValue(),
                         request.getResolutionLatitude().doubleValue(), request.getResolutionLongitude().doubleValue()
                 );
-                if (dist > 0.01) {
-                    throw new RuntimeException("❌ Location Verification Failed: Resolving location coordinates must match within 10 meters of the reported issue location. Your distance deviation: " + (int)(dist * 1000) + " meters (Max allowed: 10 meters). You must be on-site at the exact location to submit a resolution photo.");
+                if (dist > 0.1) {
+                    throw new RuntimeException("❌ Location Verification Failed: Resolving location coordinates must match within 100 meters of the reported issue location. Your distance deviation: " + (int)(dist * 1000) + " meters (Max allowed: 100 meters). You must be on-site at the exact location to submit a resolution photo.");
                 }
             }
             complaint.setResolutionImageBase64(request.getResolutionImageBase64());

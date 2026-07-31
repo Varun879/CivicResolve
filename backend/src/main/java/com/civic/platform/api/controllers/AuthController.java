@@ -24,7 +24,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Optional;
 
@@ -41,14 +43,60 @@ public class AuthController {
     private final OtpService otpService;
     private final EmailService emailService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+    @Value("${app.dev-otp-bypass:false}")
+    private boolean devOtpBypass;
 
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
-        return ResponseEntity.ok(generateResponse(userDetails));
+    private final java.util.concurrent.ConcurrentHashMap<String, Integer> loginAttempts = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.ConcurrentHashMap<String, Long> loginLockouts = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private final java.util.concurrent.ConcurrentHashMap<String, Integer> otpAttempts = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.ConcurrentHashMap<String, Long> otpLockouts = new java.util.concurrent.ConcurrentHashMap<>();
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request, HttpServletResponse response) {
+        String email = request.getEmail();
+        if (loginLockouts.containsKey(email)) {
+            if (System.currentTimeMillis() < loginLockouts.get(email)) {
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("message", "Too many failed login attempts. Try again later."));
+            } else {
+                loginLockouts.remove(email);
+                loginAttempts.remove(email);
+            }
+        }
+
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, request.getPassword())
+            );
+            loginAttempts.remove(email);
+            loginLockouts.remove(email);
+
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            AuthResponse authResponse = generateResponse(userDetails);
+            setJwtCookie(response, authResponse.getToken());
+            return ResponseEntity.ok(authResponse);
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            int attempts = loginAttempts.getOrDefault(email, 0) + 1;
+            if (attempts >= 5) {
+                loginLockouts.put(email, System.currentTimeMillis() + 15 * 60 * 1000); // 15 mins
+            } else {
+                loginAttempts.put(email, attempts);
+            }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid credentials"));
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        org.springframework.http.ResponseCookie resCookie = org.springframework.http.ResponseCookie.from("civic_jwt", "")
+                .httpOnly(true)
+                .secure(true) // ideally conditional on env, but we'll set it here based on request
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, resCookie.toString());
+        return ResponseEntity.ok(Map.of("message", "Logged out"));
     }
 
     @PostMapping("/request-otp")
@@ -57,6 +105,23 @@ public class AuthController {
         if (email == null || email.isBlank()) {
             return ResponseEntity.badRequest().body("Email is required");
         }
+
+        if (otpLockouts.containsKey(email)) {
+            if (System.currentTimeMillis() < otpLockouts.get(email)) {
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("message", "Too many OTP requests. Try again later."));
+            } else {
+                otpLockouts.remove(email);
+                otpAttempts.remove(email);
+            }
+        }
+        
+        int attempts = otpAttempts.getOrDefault(email, 0) + 1;
+        if (attempts > 3) {
+            otpLockouts.put(email, System.currentTimeMillis() + 60 * 60 * 1000); // 1 hour
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("message", "Too many OTP requests. Try again later."));
+        }
+        otpAttempts.put(email, attempts);
+
         if (userRepository.findByEmail(email).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("An account with this email already exists");
         }
@@ -67,14 +132,13 @@ public class AuthController {
         } catch (Exception e) {
             System.err.println("SMTP email send failed for signup OTP: " + e.getMessage());
             return ResponseEntity.ok(Map.of(
-                "message", "Verification code generated (Check server logs or use 123456 in dev mode)",
-                "devOtp", otp
+                "message", "Verification code generated (Check server logs or contact support)"
             ));
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, HttpServletResponse response) {
         try {
             if (userRepository.findByEmail(request.getEmail()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
@@ -84,7 +148,9 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("OTP verification is required during signup");
             }
             boolean isOtpValid = otpService.verifyOtp(request.getEmail(), request.getOtp());
-            if (!isOtpValid && !"123456".equals(request.getOtp())) {
+            
+            // Only allow 123456 bypass if explicitly enabled via dev property
+            if (!isOtpValid && !(devOtpBypass && "123456".equals(request.getOtp()))) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired verification code");
             }
 
@@ -94,7 +160,7 @@ public class AuthController {
             // Set empty phone to null to avoid unique constraint issues
             String phone = request.getPhone();
             user.setPhone((phone != null && !phone.isBlank()) ? phone : null);
-            user.setRole(request.getRole());
+            user.setRole(com.civic.platform.domain.enums.Role.CITIZEN);
             user.setDepartment(request.getDepartment());
             user.setLocation(request.getLocation());
             user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
@@ -106,7 +172,9 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            return ResponseEntity.ok(generateResponse(userDetails));
+            AuthResponse authResponse = generateResponse(userDetails);
+            setJwtCookie(response, authResponse.getToken());
+            return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed: " + e.getMessage());
@@ -114,7 +182,7 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<?> googleLogin(@Valid @RequestBody GoogleAuthRequest request) {
+    public ResponseEntity<?> googleLogin(@Valid @RequestBody GoogleAuthRequest request, HttpServletResponse response) {
         try {
             String email;
             String name;
@@ -132,17 +200,14 @@ public class AuthController {
 
             if (existingUser.isPresent()) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                return ResponseEntity.ok(generateResponse(userDetails));
+                AuthResponse authResponse = generateResponse(userDetails);
+                setJwtCookie(response, authResponse.getToken());
+                return ResponseEntity.ok(authResponse);
             } else {
-                if (request.getRole() == null) {
-                    // Tell frontend we need a role to complete registration
-                    return ResponseEntity.status(HttpStatus.ACCEPTED).body("NEEDS_ROLE");
-                }
-
                 User newUser = new User();
                 newUser.setEmail(email);
                 newUser.setName(name != null ? name : "Google User");
-                newUser.setRole(request.getRole());
+                newUser.setRole(com.civic.platform.domain.enums.Role.CITIZEN);
                 newUser.setDepartment(request.getDepartment());
                 newUser.setLocation(request.getLocation());
                 // Dummy password since Google handles auth
@@ -151,7 +216,9 @@ public class AuthController {
                 userRepository.save(newUser);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                return ResponseEntity.ok(generateResponse(userDetails));
+                AuthResponse authResponse = generateResponse(userDetails);
+                setJwtCookie(response, authResponse.getToken());
+                return ResponseEntity.ok(authResponse);
             }
 
         } catch (Exception e) {
@@ -167,5 +234,16 @@ public class AuthController {
                 .findFirst()
                 .orElse("ROLE_CITIZEN");
         return new AuthResponse(token, userDetails.getUsername(), role);
+    }
+
+    private void setJwtCookie(HttpServletResponse response, String token) {
+        org.springframework.http.ResponseCookie resCookie = org.springframework.http.ResponseCookie.from("civic_jwt", token)
+                .httpOnly(true)
+                .secure(false) // For local testing, ideally set to true in production
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(15 * 60)
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, resCookie.toString());
     }
 }

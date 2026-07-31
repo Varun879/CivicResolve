@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -106,7 +107,8 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> verifyEmailUpdateOtp(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody VerifyOtpRequest request) {
+            @Valid @RequestBody VerifyOtpRequest request,
+            HttpServletResponse response) {
         
         boolean isVerified = otpService.verifyOtp(request.getNewEmail(), request.getOtp());
         
@@ -131,8 +133,20 @@ public class UserController {
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse("ROLE_CITIZEN");
+        AuthResponse authResponse = new AuthResponse(token, newUserDetails.getUsername(), role);
+        setJwtCookie(response, authResponse.getToken());
+        return ResponseEntity.ok(authResponse);
+    }
 
-        return ResponseEntity.ok(new AuthResponse(token, newUserDetails.getUsername(), role));
+    private void setJwtCookie(HttpServletResponse response, String token) {
+        org.springframework.http.ResponseCookie resCookie = org.springframework.http.ResponseCookie.from("civic_jwt", token)
+                .httpOnly(true)
+                .secure(false) // For local testing, ideally set to true in production
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(15 * 60)
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, resCookie.toString());
     }
 
     @PostMapping("/me/phone/verify-firebase")
@@ -192,31 +206,4 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Account and all associated data permanently deleted"));
     }
 
-    @DeleteMapping("/test-accounts")
-    @PreAuthorize("permitAll()")
-    @Transactional
-    public ResponseEntity<?> deleteTestAccounts() {
-        List<User> allUsers = userRepository.findAll();
-        int deleted = 0;
-        for (User user : allUsers) {
-            String email = user.getEmail() != null ? user.getEmail().toLowerCase() : "";
-            String name = user.getName() != null ? user.getName().toLowerCase() : "";
-            if (email.endsWith("@example.com") || name.contains("test")) {
-                UUID userId = user.getId();
-                List<Complaint> myComplaints = complaintRepository.findByCitizenId(userId);
-                for (Complaint c : myComplaints) {
-                    voteRepository.deleteByComplaintId(c.getId());
-                    commentRepository.deleteByComplaintId(c.getId());
-                }
-                voteRepository.deleteByCitizenId(userId);
-                commentRepository.deleteByAuthorId(userId);
-                notificationRepository.deleteByCitizenId(userId);
-                rewardTransactionRepository.deleteByCitizenId(userId);
-                complaintRepository.deleteAll(myComplaints);
-                userRepository.delete(user);
-                deleted++;
-            }
-        }
-        return ResponseEntity.ok(Map.of("message", "Deleted test accounts", "count", deleted));
-    }
 }

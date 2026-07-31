@@ -3,6 +3,22 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { fetchComplaintById, citizenVerifyComplaintStatus, upvoteComplaint, fetchComments, addComment, manualEscalateComplaint, type Complaint } from '../api/complaints';
 import { useAuth } from '../context/AuthContext';
 
+const formatDate = (dateString?: string) => {
+  if (!dateString) return 'Not Available';
+  return new Date(dateString).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const formatEnum = (value?: string) => {
+  if (!value) return 'Not Available';
+  return value.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+};
+
 function CommentsSection({ complaintId }: { complaintId: string }) {
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -39,8 +55,8 @@ function CommentsSection({ complaintId }: { complaintId: string }) {
         {comments.map((c) => (
           <div key={c.id} className="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-label-md text-primary">{c.authorName}</span>
-              <span className="font-label-sm text-on-surface-variant text-[10px]">{new Date(c.createdAt).toLocaleString()}</span>
+              <span className="font-label-md text-primary">{c.authorName || 'Anonymous'}</span>
+              <span className="font-label-sm text-on-surface-variant text-[10px]">{formatDate(c.createdAt)}</span>
             </div>
             <p className="font-body-sm text-on-surface">{c.content}</p>
           </div>
@@ -63,7 +79,7 @@ export default function ComplaintDetail() {
       load();
       
       const sseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/sse/subscribe/${id}`;
-      const eventSource = new EventSource(sseUrl);
+      const eventSource = new EventSource(sseUrl, { withCredentials: true });
       
       eventSource.addEventListener('COMPLAINT_UPDATE', () => {
         load();
@@ -75,41 +91,59 @@ export default function ComplaintDetail() {
     }
   }, [id]);
 
-  if (!complaint) return <div className="p-8 text-center">Loading...</div>;
+  if (!complaint) {
+    return (
+      <div className="p-8 gap-6 flex flex-col w-full max-w-7xl mx-auto animate-pulse">
+        <div className="max-w-2xl mx-auto space-y-6 w-full">
+          <div className="h-8 w-1/3 bg-surface-container rounded mb-8"></div>
+          <div className="w-full h-64 bg-surface-container rounded-xl shadow-sm"></div>
+          <div className="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant h-96"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 gap-6 flex flex-col w-full max-w-7xl mx-auto">
       <div className="max-w-2xl mx-auto space-y-6 w-full">
         <header className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate(-1)} className="text-2xl text-on-surface-variant hover:text-primary transition-colors">❮</button>
+          <button onClick={() => navigate(-1)} aria-label="Go back" className="text-2xl text-on-surface-variant hover:text-primary transition-colors">❮</button>
           <h1 className="font-display-sm text-primary">Report Details</h1>
         </header>
 
-        {complaint.imageUrl && (
-          <img src={complaint.imageUrl} alt="Complaint" className="w-full h-64 object-cover rounded-xl shadow-sm border border-outline-variant" />
-        )}
+        {(complaint.imageUrl || complaint.imageBase64) ? (
+          <img 
+            src={complaint.imageUrl || (complaint.imageBase64?.startsWith('data:') ? complaint.imageBase64 : `data:image/jpeg;base64,${complaint.imageBase64}`)} 
+            alt="Complaint" 
+            className="w-full h-64 object-cover rounded-xl shadow-sm border border-outline-variant" 
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+        ) : null}
+        <div className={`w-full h-64 bg-surface-container rounded-xl flex flex-col items-center justify-center border border-outline-variant shadow-sm text-on-surface-variant ${((complaint.imageUrl || complaint.imageBase64) ? 'hidden' : '')}`}>
+          <span className="material-symbols-outlined text-4xl mb-2 block text-center" aria-hidden="true">image_not_supported</span>
+          <span className="block text-center font-label-md">No Image Available</span>
+        </div>
 
         <div className="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant shadow-sm">
           <div className="flex justify-between items-start mb-6 border-b border-outline-variant pb-4">
             <div>
-              <span className="font-label-sm text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full mb-2 inline-block">{complaint.publicId}</span>
-              <h2 className="font-headline-md text-primary">{complaint.category}</h2>
+              <span className="font-label-sm text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full mb-2 inline-block">{complaint.publicId || 'ID Not Available'}</span>
+              <h2 className="font-headline-md text-primary">{formatEnum(complaint.category)}</h2>
             </div>
             <span className={`px-3 py-1 rounded font-bold uppercase tracking-wider text-xs ${complaint.status === 'RESOLVED' ? 'bg-secondary-container text-on-secondary-container' : 'bg-tertiary-fixed text-on-tertiary-fixed'}`}>
-              {complaint.status}
+              {formatEnum(complaint.status)}
             </span>
           </div>
           
-          <p className="font-body-md text-on-surface-variant mb-6 whitespace-pre-wrap">{complaint.description}</p>
+          <p className="font-body-md text-on-surface-variant mb-6 whitespace-pre-wrap">{complaint.description || 'No description provided.'}</p>
           
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-surface-container p-4 rounded-lg border border-outline-variant">
-              <span className="font-label-sm text-on-surface-variant block mb-1">Category</span>
-              <span className="font-label-md text-on-surface">{complaint.category}</span>
-            </div>
-            <div className="bg-surface-container p-4 rounded-lg border border-outline-variant">
+          <div className="mb-8">
+            <div className="bg-surface-container p-4 rounded-lg border border-outline-variant inline-block">
               <span className="font-label-sm text-on-surface-variant block mb-1">Priority</span>
-              <span className="font-label-md text-on-surface">{complaint.priority}</span>
+              <span className="font-label-md text-on-surface">{formatEnum(complaint.priority) || 'Not Assigned'}</span>
             </div>
           </div>
 
@@ -158,7 +192,7 @@ export default function ComplaintDetail() {
                   <span className="material-symbols-outlined text-amber-500 text-[22px]">schedule</span>
                   <div>
                     <span className="font-label-sm text-on-surface-variant block">Resolution Timeline (SLA Deadline)</span>
-                    <span className="font-label-md text-on-surface font-bold">{new Date(complaint.slaDeadline).toLocaleString()}</span>
+                    <span className="font-label-md text-on-surface font-bold">{formatDate(complaint.slaDeadline)}</span>
                   </div>
                 </div>
                 {complaint.isEscalated ? (
@@ -194,8 +228,17 @@ export default function ComplaintDetail() {
                     </span>
                   </div>
                   {complaint.resolutionLatitude && complaint.resolutionLongitude && (
-                    <div className="text-xs text-on-surface-variant font-mono bg-surface-container p-2 rounded">
-                      Lat: {complaint.resolutionLatitude.toFixed(6)}, Lng: {complaint.resolutionLongitude.toFixed(6)}
+                    <div className="text-xs text-on-surface-variant font-mono bg-surface-container p-2 rounded flex flex-col gap-2">
+                      <span>Lat: {complaint.resolutionLatitude.toFixed(6)}, Lng: {complaint.resolutionLongitude.toFixed(6)}</span>
+                      <a 
+                        href={`https://maps.google.com/?q=${complaint.resolutionLatitude},${complaint.resolutionLongitude}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-[14px]" aria-hidden="true">open_in_new</span>
+                        View on Google Maps
+                      </a>
                     </div>
                   )}
                   <div className="text-xs text-on-surface-variant">
@@ -266,7 +309,7 @@ export default function ComplaintDetail() {
             <div className="relative">
               <div className="absolute w-4 h-4 bg-primary rounded-full -left-[1.95rem] top-0.5 border-2 border-surface-container-lowest ring-4 ring-primary/20"></div>
               <p className="font-label-md text-primary font-bold">REPORTED</p>
-              <p className="font-label-sm text-on-surface-variant">Issue logged with verified GPS location on {new Date(complaint.createdAt).toLocaleString()}</p>
+              <p className="font-label-sm text-on-surface-variant">Issue logged with verified GPS location on {formatDate(complaint.createdAt)}</p>
             </div>
           </div>
           

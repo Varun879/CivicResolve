@@ -34,7 +34,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll() // Open login/register endpoints
                 .requestMatchers("/actuator/health/**").permitAll() // Open health checks for K8s
-                .requestMatchers("/api/v1/sse/**").permitAll() // Open SSE endpoints (no sensitive data emitted, just update signals)
+                .requestMatchers("/error").permitAll() // Allow error dispatches
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

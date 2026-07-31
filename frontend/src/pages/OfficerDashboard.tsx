@@ -125,7 +125,7 @@ export default function OfficerDashboard() {
       setShowResolveModal(false);
       await loadComplaints();
     } catch (e: any) {
-      setResError(e.response?.data?.message || e.message || "Failed to submit verified resolution. Ensure you are within 10 meters of the reported issue location.");
+      setResError(e.response?.data?.message || e.message || "Failed to submit verified resolution. Ensure you are within 100 meters of the reported issue location.");
     } finally {
       setIsSubmittingRes(false);
     }
@@ -422,14 +422,14 @@ export default function OfficerDashboard() {
         </main>
       </div>
 
-      {/* 10-Meter Geo-Fenced Resolution Verification Modal */}
+      {/* 100-Meter Geo-Fenced Resolution Verification Modal */}
       {showResolveModal && selectedComp && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-6 shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-outline-variant pb-4">
               <div className="flex items-center gap-2 text-primary">
                 <span className="material-symbols-outlined text-2xl">verified_user</span>
-                <h2 className="font-headline-md text-lg font-bold">10-Meter Geo-Fenced Resolution</h2>
+                <h2 className="font-headline-md text-lg font-bold">100-Meter Geo-Fenced Resolution</h2>
               </div>
               <button onClick={() => setShowResolveModal(false)} className="text-on-surface-variant hover:text-on-surface text-xl font-bold cursor-pointer">
                 ✕
@@ -442,7 +442,7 @@ export default function OfficerDashboard() {
                 Mandatory Jurisdiction Compliance Rule
               </p>
               <p className="text-on-surface-variant leading-relaxed">
-                To prevent false reporting and ensure genuine civic accountability, your current GPS coordinates must match within <strong>10 meters (0.01 km)</strong> of the reported issue location. You must also upload photographic proof of the resolution.
+                To prevent false reporting and ensure genuine civic accountability, your current GPS coordinates must match within <strong>100 meters (0.10 km)</strong> of the reported issue location. You must also upload photographic proof of the resolution.
               </p>
               <div className="font-mono bg-surface p-2 rounded text-[11px] text-primary">
                 Reported Target: Lat {selectedComp.latitude.toFixed(6)}, Lng {selectedComp.longitude.toFixed(6)}
@@ -500,7 +500,7 @@ export default function OfficerDashboard() {
                 {resLat !== null && resLng !== null && (
                   <div className="text-[11px] font-mono bg-surface p-2.5 rounded-lg border border-outline-variant flex justify-between items-center text-on-surface-variant">
                     <span>Your GPS: {resLat.toFixed(6)}, {resLng.toFixed(6)}</span>
-                    <span className="text-green-400 font-bold">≤ 10m range</span>
+                    <span className="text-green-400 font-bold">≤ 100m range</span>
                   </div>
                 )}
               </div>
