@@ -207,9 +207,28 @@ export default function DeptHeadDashboard() {
                         </div>
                       )}
                       {escalations.map(esc => (
-                        <div key={esc.id} onClick={() => { setSelectedComp(esc); setShowModal(true); }} className="border-l-4 border-error pl-3 py-2 rounded-r-lg hover:bg-error/5 transition-colors cursor-pointer group">
-                          <div className="flex justify-between items-start">
+                        <div key={esc.id} onClick={() => { setSelectedComp(esc); setShowModal(true); }} className="border-l-4 border-error pl-3 py-2 rounded-r-lg hover:bg-error/5 transition-colors cursor-pointer group mb-2">
+                          <div className="flex justify-between items-start mb-1">
                             <span className="font-label-md text-label-md text-primary group-hover:text-error transition-colors">{esc.category}</span>
+                            <span className="text-[10px] text-on-surface-variant bg-surface-container-high px-1.5 py-0.5 rounded font-mono">ID: {esc.publicId || esc.id.substring(0, 8)}</span>
+                          </div>
+                          <div className="flex flex-col gap-1 text-xs text-on-surface-variant mb-2">
+                            {esc.assignedOfficerName && (
+                              <div className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[14px]">engineering</span>
+                                {esc.assignedOfficerName} {esc.assignedOfficerDepartment ? `(${esc.assignedOfficerDepartment})` : ''}
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[14px]">location_on</span>
+                                {esc.latitude ? `${esc.latitude.toFixed(3)}, ${esc.longitude.toFixed(3)}` : 'Location unknown'}
+                              </div>
+                              <div className="flex items-center gap-1 text-error font-medium">
+                                <span className="material-symbols-outlined text-[14px]">timer</span>
+                                Since: {new Date(esc.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
                           </div>
                           <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">{esc.description}</p>
                         </div>

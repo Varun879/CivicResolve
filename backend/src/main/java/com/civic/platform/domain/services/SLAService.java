@@ -42,6 +42,10 @@ public class SLAService {
         List<Complaint> breachedComplaints = complaintRepository.findBreachedComplaints(now);
 
         for (Complaint complaint : breachedComplaints) {
+            if (complaint.getCreatedAt() == null || complaint.getSlaDeadline() == null) {
+                continue;
+            }
+            
             // Determine percentage elapsed
             long deadlineEpoch = complaint.getSlaDeadline().toEpochSecond();
             long createdEpoch = complaint.getCreatedAt().toEpochSecond();

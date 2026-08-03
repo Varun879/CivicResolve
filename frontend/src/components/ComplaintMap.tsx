@@ -45,7 +45,7 @@ interface ComplaintMapProps {
 export default function ComplaintMap({ 
   complaints, 
   height = '320px',
-  center = [28.6139, 77.2090],
+  center = [17.59, 78.48],
   zoom = 12
 }: ComplaintMapProps) {
   const navigate = useNavigate();

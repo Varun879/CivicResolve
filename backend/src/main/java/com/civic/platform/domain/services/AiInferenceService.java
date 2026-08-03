@@ -97,7 +97,7 @@ public class AiInferenceService {
                 }
             }
 
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
 
             String systemPrompt = "You are the image-analysis engine for a city \"Report an Issue\" app. You will be given:\n" +
                 "1. A photo uploaded by a citizen.\n" +

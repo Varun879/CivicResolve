@@ -260,7 +260,7 @@ export default function OfficerDashboard() {
                             <h2 className="font-headline-lg text-headline-lg text-primary mb-1">{selectedComp.category} Issue</h2>
                             <div className="flex items-center gap-4 text-on-surface-variant font-body-sm text-body-sm">
                               <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">tag</span> ID: {selectedComp.id.substring(0, 8)}</span>
-                              <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">calendar_today</span> {new Date(selectedComp.createdAt || '').toLocaleDateString()}</span>
+                              <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">calendar_today</span> {selectedComp.createdAt && !isNaN(new Date(selectedComp.createdAt).getTime()) ? new Date(selectedComp.createdAt).toLocaleDateString() : 'Date not available'}</span>
                             </div>
                           </div>
                           <span className={`font-label-md text-label-md px-3 py-1.5 rounded-sm ${selectedComp.priorityBand === 'CRITICAL' ? 'bg-error-container text-on-error-container' : 'bg-surface-container border border-outline-variant text-on-surface-variant'}`}>
@@ -277,7 +277,7 @@ export default function OfficerDashboard() {
                               <span className="material-symbols-outlined text-primary text-3xl">psychology</span>
                               <div>
                                 <div className="font-label-md text-label-md text-primary">Category: {selectedComp.category}</div>
-                                <div className="font-body-sm text-body-sm text-on-surface-variant">Confidence: {selectedComp.aiConfidenceScore ? (selectedComp.aiConfidenceScore * 100).toFixed(0) : 'N/A'}%</div>
+                                <div className="font-body-sm text-body-sm text-on-surface-variant">Confidence: {selectedComp.aiConfidenceScore != null ? `${(selectedComp.aiConfidenceScore * 100).toFixed(0)}%` : 'Not available'}</div>
                               </div>
                             </div>
                           </div>
@@ -316,7 +316,7 @@ export default function OfficerDashboard() {
                         <div>
                           <div className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Reporter Notes</div>
                           <p className="font-body-md text-body-md text-on-surface-variant p-4 bg-surface-container-low rounded-lg border border-outline-variant">
-                            "{selectedComp.description}"
+                            {(!selectedComp.description || selectedComp.description === '""' || selectedComp.description.trim() === '') ? 'No notes provided' : `"${selectedComp.description}"`}
                           </p>
                         </div>
                       </div>
