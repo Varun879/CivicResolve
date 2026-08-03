@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createComplaint, analyzeImage } from '../api/complaints';
+import { saveOfflineRequest } from '../lib/offlineQueue';
 import { useAuth } from '../context/AuthContext';
 
 export default function ReportIssue() {
@@ -69,23 +70,33 @@ export default function ReportIssue() {
     if (!image) return alert('Please upload an image first.');
     
     setSubmitting(true);
-    setAiAnalyzing(true);
+    const submitData = {
+      title: category,
+      description,
+      category: category,
+      priority: priority,
+      latitude: lat,
+      longitude: lng,
+      imageBase64: image
+    };
+
     try {
-      await createComplaint({
-        title: category, // Title was removed from the new UI, using category
-        description,
-        category: category,
-        priority: priority,
-        latitude: lat,
-        longitude: lng,
-        imageBase64: image
-      });
+      await createComplaint(submitData);
       navigate('/citizen/dashboard');
-    } catch (err) {
-      alert('Failed to submit complaint');
+    } catch (err: any) {
+      if (err.message === 'Network Error' || !navigator.onLine) {
+        await saveOfflineRequest({
+          url: '/complaints',
+          method: 'POST',
+          data: submitData
+        });
+        alert('You appear to be offline. Your issue has been saved locally and will be automatically submitted when your connection is restored.');
+        navigate('/citizen/dashboard');
+      } else {
+        alert('Failed to submit complaint');
+      }
     } finally {
       setSubmitting(false);
-      setAiAnalyzing(false);
     }
   };
 

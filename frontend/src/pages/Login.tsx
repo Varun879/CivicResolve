@@ -65,7 +65,7 @@ export default function Login() {
       email: data.email,
       role: rawRole
     };
-    setAuth(user, data.token);
+    setAuth(user);
     
     if (rawRole === 'CITIZEN' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -129,22 +129,13 @@ export default function Login() {
     try {
       const idToken = await signInWithGoogle();
       const response = await googleLogin(idToken);
-      
-      if (response.needsRole) {
-        setGoogleIdToken(idToken);
-        setNeedsRoleForGoogle(true);
-      } else {
-        handleAuthSuccess(response);
-      }
-    } catch (err) {
+      handleAuthSuccess(response);
+    } catch (err: any) {
       console.error(err);
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.warn('Simulating Google Auth since Firebase popup failed locally.');
-        setGoogleIdToken('LOCAL_MOCK');
-        setNeedsRoleForGoogle(true);
-      } else {
-        alert('Google Auth failed.');
-      }
+      const msg = typeof err?.response?.data === 'string' 
+        ? err.response.data 
+        : err?.response?.data?.message || err?.message || 'Google Auth failed.';
+      alert('Google Auth failed: ' + msg);
     } finally {
       setLoading(false);
     }
@@ -153,22 +144,8 @@ export default function Login() {
   const submitGoogleWithRole = async () => {
     setLoading(true);
     try {
-      if (googleIdToken === 'LOCAL_MOCK') {
-        const data = await register({ 
-          email: `google.mock.${Date.now()}@example.com`, 
-          password: 'mockpassword123', 
-          name: 'Mock Google User', 
-          phone: '', 
-          role, 
-          location, 
-          department,
-          otp: '123456'
-        });
-        handleAuthSuccess(data);
-      } else {
-        const response = await googleLogin(googleIdToken || '', role, location, department);
-        handleAuthSuccess(response);
-      }
+      const response = await googleLogin(googleIdToken || '', role, location, department);
+      handleAuthSuccess(response);
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data || 'Failed to complete Google Registration.');
@@ -264,60 +241,6 @@ export default function Login() {
               </button>
             </div>
           </div>
-        ) : needsRoleForGoogle ? (
-          <div className="space-y-4">
-            <p className="font-body-sm text-body-sm text-on-surface-variant mb-4">Almost there! We just need to know your role to complete your Google registration.</p>
-            <div>
-              <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Select Role</label>
-              <select 
-                value={role} 
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full bg-surface-container border border-outline-variant rounded-lg p-2 font-body-md text-primary focus:outline-none focus:border-primary"
-              >
-                <option value="CITIZEN">Citizen</option>
-                <option value="FIELD_OFFICER">Field Officer</option>
-                <option value="DEPT_HEAD">Department Head</option>
-                <option value="COMMISSIONER">Commissioner</option>
-              </select>
-            </div>
-            {['FIELD_OFFICER', 'DEPT_HEAD', 'COMMISSIONER'].includes(role) && (
-              <>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Location</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="flex-1 bg-surface-container border border-outline-variant rounded-lg p-2 font-body-md text-primary focus:outline-none focus:border-primary"
-                      required
-                    />
-                    <button type="button" onClick={autoDetectLocation} className="bg-surface-container-high px-3 py-2 rounded-lg text-primary hover:bg-surface-container-highest transition-colors">
-                      <span className="material-symbols-outlined text-xl">my_location</span>
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Department</label>
-                  <select 
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full bg-surface-container border border-outline-variant rounded-lg p-2 font-body-md text-primary focus:outline-none focus:border-primary"
-                    required
-                  >
-                    <option value="TRANSPORT_AND_ROADS">Transport & Roads</option>
-                    <option value="SANITATION">Sanitation</option>
-                    <option value="WATER_AND_SEWAGE">Water & Sewage</option>
-                    <option value="PARKS_AND_PUBLIC_WORKS">Parks & Public Works</option>
-                    <option value="GENERAL">General</option>
-                  </select>
-                </div>
-              </>
-            )}
-            <button onClick={submitGoogleWithRole} disabled={loading} className="w-full bg-primary text-on-primary font-label-md py-3 rounded-lg hover:opacity-90 transition-opacity mt-4 flex items-center justify-center cursor-pointer">
-              {loading ? 'Completing...' : 'Complete Registration'}
-            </button>
-          </div>
         ) : (
           <>
             <div className="flex mb-6 border-b border-outline-variant">
@@ -365,53 +288,6 @@ export default function Login() {
                       className="w-full bg-surface-container border border-outline-variant rounded-lg p-2 font-body-md text-primary focus:outline-none focus:border-primary"
                     />
                   </div>
-                  <div>
-                    <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Role</label>
-                    <select 
-                      value={role} 
-                      onChange={(e) => setRole(e.target.value)}
-                      className="w-full bg-surface-container border border-outline-variant rounded-lg p-2 font-body-md text-primary focus:outline-none focus:border-primary"
-                    >
-                      <option value="CITIZEN">Citizen</option>
-                      <option value="FIELD_OFFICER">Field Officer</option>
-                      <option value="DEPT_HEAD">Department Head</option>
-                      <option value="COMMISSIONER">Commissioner</option>
-                    </select>
-                  </div>
-                  {['FIELD_OFFICER', 'DEPT_HEAD', 'COMMISSIONER'].includes(role) && (
-                    <>
-                      <div>
-                        <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Location</label>
-                        <div className="flex gap-2">
-                          <input 
-                            type="text" 
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            className="flex-1 bg-surface-container border border-outline-variant rounded-lg p-2 font-body-md text-primary focus:outline-none focus:border-primary"
-                            required
-                          />
-                          <button type="button" onClick={autoDetectLocation} className="bg-surface-container-high px-3 py-2 rounded-lg text-primary hover:bg-surface-container-highest transition-colors">
-                            <span className="material-symbols-outlined text-xl">my_location</span>
-                          </button>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block font-label-sm text-label-sm text-on-surface-variant mb-1">Department</label>
-                        <select 
-                          value={department}
-                          onChange={(e) => setDepartment(e.target.value)}
-                          className="w-full bg-surface-container border border-outline-variant rounded-lg p-2 font-body-md text-primary focus:outline-none focus:border-primary"
-                          required
-                        >
-                          <option value="TRANSPORT_AND_ROADS">Transport & Roads</option>
-                          <option value="SANITATION">Sanitation</option>
-                          <option value="WATER_AND_SEWAGE">Water & Sewage</option>
-                          <option value="PARKS_AND_PUBLIC_WORKS">Parks & Public Works</option>
-                          <option value="GENERAL">General</option>
-                        </select>
-                      </div>
-                    </>
-                  )}
                 </>
               )}
               

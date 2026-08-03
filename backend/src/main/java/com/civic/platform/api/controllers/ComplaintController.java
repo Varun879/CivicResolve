@@ -60,6 +60,26 @@ public class ComplaintController {
         complaint.setImageBase64(request.getImageBase64());
         complaint.setStatus(ComplaintStatus.REPORTED);
 
+        try {
+            String url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + request.getLatitude() + "&lon=" + request.getLongitude() + "&zoom=18&addressdetails=1";
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.set("User-Agent", "CivicResolve/1.0");
+            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
+            org.springframework.http.ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                url, 
+                org.springframework.http.HttpMethod.GET, 
+                entity, 
+                new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {}
+            );
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                String displayName = (String) response.getBody().get("display_name");
+                complaint.setAddress(displayName);
+            }
+        } catch (Exception e) {
+            System.err.println("Reverse geocoding failed: " + e.getMessage());
+        }
+
         // 1. AI Inference
         var aiResult = aiInferenceService.analyzeImage(request.getImageBase64(), request.getCategory(), request.getDescription(), request.getLatitude(), request.getLongitude());
         complaint.setCategory(aiResult.category);
@@ -197,7 +217,6 @@ public class ComplaintController {
         String finalDepartment = department;
         List<ComplaintResponse> responses = complaintRepository.findAll().stream()
                 .filter(c -> finalDepartment.equals(assignmentService.resolveDepartment(c.getCategory())))
-                .filter(c -> (c.getIsEscalated() != null && c.getIsEscalated()) || (c.getSlaDeadline() != null && c.getSlaDeadline().isBefore(java.time.ZonedDateTime.now())))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
@@ -207,7 +226,6 @@ public class ComplaintController {
     @PreAuthorize("hasRole('COMMISSIONER')")
     public ResponseEntity<List<ComplaintResponse>> getCommissionerComplaints() {
         List<ComplaintResponse> responses = complaintRepository.findAll().stream()
-                .filter(c -> (c.getIsEscalated() != null && c.getIsEscalated()) || (c.getSlaDeadline() != null && c.getSlaDeadline().isBefore(java.time.ZonedDateTime.now())))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
@@ -412,6 +430,8 @@ public class ComplaintController {
                 .priorityBand(c.getPriorityBand() != null ? c.getPriorityBand().name() : null)
                 .latitude(c.getLatitude())
                 .longitude(c.getLongitude())
+                .address(c.getAddress())
+                .department(assignmentService.resolveDepartment(c.getCategory()))
                 .supportCount(c.getSupportCount())
                 .createdAt(c.getCreatedAt())
                 .slaDeadline(c.getSlaDeadline())

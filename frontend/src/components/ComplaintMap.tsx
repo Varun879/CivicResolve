@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Complaint } from '../api/complaints';
+import MapLegend from './MapLegend';
 
 // Create custom icon matching Citizen portal's NearbyIssues map interface exactly
 const createCustomIcon = (category: string, isEscalated?: boolean) => {
@@ -87,6 +88,8 @@ export default function ComplaintMap({
           </Marker>
         ))}
       </MapContainer>
+      {/* Map Legend */}
+      <MapLegend />
     </div>
   );
 }

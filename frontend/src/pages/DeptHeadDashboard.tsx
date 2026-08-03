@@ -5,13 +5,18 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ComplaintMap from '../components/ComplaintMap';
 import ProfileModal from '../components/ProfileModal';
+import OfficialComplaintModal from '../components/OfficialComplaintModal';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import PortalHeader from '../components/PortalHeader';
+import EmptyState from '../components/EmptyState';
 
 export default function DeptHeadDashboard() {
   const [analytics, setAnalytics] = useState<DeptHeadAnalytics | null>(null);
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'map' | 'analytics'>('dashboard');
   const [showProfile, setShowProfile] = useState(false);
+  const [selectedComp, setSelectedComp] = useState<Complaint | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -108,24 +113,8 @@ export default function DeptHeadDashboard() {
       {/* Main Content Area */}
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen bg-surface">
         {/* TopAppBar */}
-        <header className="flex justify-between items-center w-full px-8 h-16 sticky top-0 z-30 bg-surface-container-lowest border-b border-outline-variant">
-          <div className="flex items-center gap-4">
-            <img src="/logo.jpg" alt="CivicResolve Logo" className="w-8 h-8 rounded-full object-cover bg-white md:hidden" />
-            <span className="font-headline-md text-headline-md font-bold text-primary md:hidden">CivicResolve</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setShowProfile(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-secondary-container/30 hover:bg-secondary-container/50 text-primary rounded-full font-label-md transition-colors shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[20px]">person</span>
-              <span>{user?.email || 'Profile'}</span>
-            </button>
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">
-              {user?.email.charAt(0).toUpperCase()}
-            </div>
-          </div>
-        </header>
+        {/* TopAppBar */}
+        <PortalHeader onProfileClick={() => setShowProfile(true)} showMobileMenuIcon />
 
         {/* Dashboard Canvas */}
         <main className="flex-1 p-8 overflow-y-auto">
@@ -187,9 +176,9 @@ export default function DeptHeadDashboard() {
                           </tr>
                         </thead>
                         <tbody className="font-body-sm text-body-sm text-on-surface">
-                          {complaints.length === 0 && <tr><td colSpan={4} className="py-4 text-center text-on-surface-variant">No recent issues found.</td></tr>}
+                          {complaints.length === 0 && <tr><td colSpan={4} className="py-8"><EmptyState title="No recent issues" body="No issues found for your department." icon="info" /></td></tr>}
                           {complaints.slice(0, 10).map(c => (
-                            <tr key={c.id} className="border-b border-outline-variant/50 hover:bg-primary/10 hover:shadow-xs cursor-pointer transition-all duration-150">
+                            <tr key={c.id} onClick={() => { setSelectedComp(c); setShowModal(true); }} className="border-b border-outline-variant/50 hover:bg-primary/10 hover:shadow-xs cursor-pointer transition-all duration-150">
                               <td className="py-2.5 font-medium text-primary">{c.category}</td>
                               <td className="py-2.5">{c.status}</td>
                               <td className="py-2.5">
@@ -212,11 +201,15 @@ export default function DeptHeadDashboard() {
                       <span className="bg-error-container text-on-error-container font-label-sm text-label-sm px-2 py-1 rounded">Action Req</span>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                      {escalations.length === 0 && <p className="text-on-surface-variant font-body-sm text-body-sm">No active escalations.</p>}
+                      {escalations.length === 0 && (
+                        <div className="h-40">
+                          <EmptyState title="No escalations" icon="verified" body="All operations are running smoothly." />
+                        </div>
+                      )}
                       {escalations.map(esc => (
-                        <div key={esc.id} className="border-l-4 border-error pl-3 py-1">
+                        <div key={esc.id} onClick={() => { setSelectedComp(esc); setShowModal(true); }} className="border-l-4 border-error pl-3 py-2 rounded-r-lg hover:bg-error/5 transition-colors cursor-pointer group">
                           <div className="flex justify-between items-start">
-                            <span className="font-label-md text-label-md text-primary">{esc.category}</span>
+                            <span className="font-label-md text-label-md text-primary group-hover:text-error transition-colors">{esc.category}</span>
                           </div>
                           <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">{esc.description}</p>
                         </div>
@@ -270,6 +263,7 @@ export default function DeptHeadDashboard() {
         </main>
       </div>
       <ProfileModal show={showProfile} onClose={() => setShowProfile(false)} />
+      <OfficialComplaintModal show={showModal} onClose={() => setShowModal(false)} complaint={selectedComp} />
     </div>
   );
 }

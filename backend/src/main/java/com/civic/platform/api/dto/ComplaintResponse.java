@@ -20,7 +20,9 @@ public class ComplaintResponse {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private Integer supportCount;
+    private String address;
     private ZonedDateTime createdAt;
+    private String department;
     private BigDecimal aiConfidenceScore;
     private String imageUrl;
     private String publicId;

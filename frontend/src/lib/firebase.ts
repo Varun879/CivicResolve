@@ -23,10 +23,6 @@ export const signInWithGoogle = async () => {
     return token;
   } catch (error) {
     console.error("Error signing in with Google", error);
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.warn("Falling back to local mock Google token due to Firebase auth error.");
-      return "LOCAL_MOCK_GOOGLE_TOKEN";
-    }
     throw error;
   }
 };

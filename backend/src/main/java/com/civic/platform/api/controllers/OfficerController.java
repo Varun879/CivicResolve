@@ -27,6 +27,8 @@ public class OfficerController {
     private final com.civic.platform.domain.repositories.NotificationRepository notificationRepository;
     private final com.civic.platform.domain.services.AssignmentService assignmentService;
     private final com.civic.platform.domain.services.SseService sseService;
+    private final com.civic.platform.domain.services.EmailService emailService;
+    private final com.civic.platform.domain.services.PushNotificationService pushNotificationService;
 
     @GetMapping("/assignments")
     @PreAuthorize("hasRole('FIELD_OFFICER')")
@@ -113,6 +115,12 @@ public class OfficerController {
                 notif.setMessage("Your report for " + complaint.getCategory() + " is now " + status);
             }
             notificationRepository.save(notif);
+            
+            // Phase 2: Zero-cost Email and Push notification
+            if (status == ComplaintStatus.RESOLVED) {
+                emailService.sendResolutionEmail(complaint.getCitizen().getEmail(), complaint.getId().toString());
+            }
+            pushNotificationService.sendPushNotification(complaint.getCitizen().getEmail(), notif.getTitle(), notif.getMessage());
         }
 
         // Emit SSE update to listening clients

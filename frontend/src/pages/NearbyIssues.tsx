@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { fetchComplaints, type Complaint } from '../api/complaints';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import PortalHeader from '../components/PortalHeader';
+import MapLegend from '../components/MapLegend';
 
 // Create a custom icon for Leaflet markers using Material Symbols if possible, or standard pins
 const createCustomIcon = (category: string) => {
@@ -176,6 +179,8 @@ export default function NearbyIssues() {
                </Marker>
              ))}
            </MapContainer>
+           {/* Map Legend */}
+           <MapLegend />
         </div>
         <div className="w-96 bg-surface-container-lowest rounded-xl border border-outline-variant flex flex-col overflow-hidden shadow-sm shrink-0">
           <div className="p-4 border-b border-outline-variant bg-surface-container-low shrink-0 flex justify-between items-center">

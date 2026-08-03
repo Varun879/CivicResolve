@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchComplaints, fetchNearbyComplaints, type Complaint } from '../api/complaints';
 import { fetchUserRewards, type RewardData } from '../api/rewards';
+import EmptyState from '../components/EmptyState';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return 'Not Available';
@@ -23,6 +24,7 @@ export default function CitizenDashboard() {
   const [rewards, setRewards] = useState<RewardData | null>(null);
   const [activeTab, setActiveTab] = useState<'my_reports' | 'nearby_5km'>('my_reports');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'RESOLVED'>('ALL');
+  const [visibleCount, setVisibleCount] = useState(5);
   const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
   const [locationStatus, setLocationStatus] = useState<'requesting' | 'granted' | 'denied'>('requesting');
   const [neighborhood, setNeighborhood] = useState<string>('Local Municipal Zone');
@@ -208,7 +210,7 @@ export default function CitizenDashboard() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-border-default pb-0 gap-4">
               <div className="flex items-center gap-6 overflow-x-auto w-full sm:w-auto">
                 <button
-                  onClick={() => setActiveTab('my_reports')}
+                  onClick={() => { setActiveTab('my_reports'); setVisibleCount(5); }}
                   className={`font-headline-md text-sm md:text-base pb-3 border-b-4 transition-all duration-150 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded-t-lg px-2 cursor-pointer whitespace-nowrap ${
                     activeTab === 'my_reports'
                       ? 'text-brand-primary border-brand-primary font-bold shadow-xs'
@@ -219,7 +221,7 @@ export default function CitizenDashboard() {
                   My Recent Reports ({myComplaints.length})
                 </button>
                 <button
-                  onClick={() => setActiveTab('nearby_5km')}
+                  onClick={() => { setActiveTab('nearby_5km'); setVisibleCount(5); }}
                   className={`font-headline-md text-sm md:text-base pb-3 border-b-4 transition-all duration-150 ease-in-out flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded-t-lg px-2 cursor-pointer whitespace-nowrap ${
                     activeTab === 'nearby_5km'
                       ? 'text-brand-primary border-brand-primary font-bold shadow-xs'
@@ -233,7 +235,7 @@ export default function CitizenDashboard() {
               <div className="pb-3 flex-shrink-0">
                 <select 
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  onChange={(e) => { setStatusFilter(e.target.value as any); setVisibleCount(5); }}
                   className="bg-surface border border-border-default rounded-md px-3 py-1.5 text-sm font-label-md text-ink-primary focus:outline-none focus:ring-2 focus:ring-brand-primary cursor-pointer shadow-sm"
                   aria-label="Filter complaints by status"
                 >
@@ -267,29 +269,23 @@ export default function CitizenDashboard() {
                   
                   if (baseList.length === 0) {
                     return (
-                      <div className="flex flex-col items-center justify-center p-12 text-center bg-page/40 rounded-xl border border-border-default border-dashed gap-4 animate-in fade-in duration-200">
-                        <div className="w-16 h-16 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shadow-inner">
-                          <span className="material-symbols-outlined text-[32px]" aria-hidden="true">campaign</span>
-                        </div>
-                        <div>
-                          <h4 className="font-headline-md text-label-lg font-bold text-ink-primary mb-1">
-                            {activeTab === 'my_reports' ? 'No reports submitted yet' : 'No nearby issues found'}
-                          </h4>
-                          <p className="font-body-sm text-sm text-ink-secondary max-w-sm mx-auto">
-                            {activeTab === 'my_reports'
-                              ? 'You have not logged any civic issues yet. Be the first to speak up and improve your neighborhood!'
-                              : 'There are currently no active community concerns reported within 5 km of your GPS location.'}
-                          </p>
-                        </div>
-                        {activeTab === 'my_reports' && (
-                          <button
-                            onClick={() => navigate('/citizen/report')}
-                            className="mt-2 bg-brand-primary text-white px-6 py-2.5 rounded-lg font-label-md text-sm font-bold flex items-center gap-2 hover:brightness-90 hover:scale-[1.02] shadow-sm hover:shadow-md transition-all duration-150 ease-in-out focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:outline-none cursor-pointer"
-                          >
-                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">add_circle</span>
-                            Report Your First Issue
-                          </button>
-                        )}
+                      <div className="h-64 mt-4">
+                        <EmptyState 
+                          title={activeTab === 'my_reports' ? 'No reports submitted yet' : 'No nearby issues found'} 
+                          icon="campaign" 
+                          body={activeTab === 'my_reports'
+                            ? 'You have not logged any civic issues yet. Be the first to speak up and improve your neighborhood!'
+                            : 'There are currently no active community concerns reported within 5 km of your GPS location.'}
+                          action={activeTab === 'my_reports' ? (
+                            <button
+                              onClick={() => navigate('/citizen/report')}
+                              className="mt-2 bg-brand-primary text-white px-6 py-2.5 rounded-lg font-label-md text-sm font-bold flex items-center gap-2 hover:brightness-90 hover:scale-[1.02] shadow-sm hover:shadow-md transition-all duration-150 ease-in-out focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:outline-none cursor-pointer"
+                            >
+                              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">add_circle</span>
+                              Report Your First Issue
+                            </button>
+                          ) : undefined}
+                        />
                       </div>
                     );
                   }
@@ -302,15 +298,18 @@ export default function CitizenDashboard() {
 
                   if (filteredList.length === 0) {
                     return (
-                      <div className="flex flex-col items-center justify-center p-8 text-center bg-page/40 rounded-xl border border-border-default border-dashed gap-4 animate-in fade-in duration-200">
-                        <span className="material-symbols-outlined text-4xl text-ink-secondary/50" aria-hidden="true">filter_list_off</span>
-                        <p className="text-ink-secondary font-label-md">No reports match the selected filter.</p>
+                      <div className="h-40 mt-4">
+                        <EmptyState title="No reports match the selected filter." icon="filter_list_off" />
                       </div>
                     );
                   }
 
-                  return filteredList.map(comp => {
-                    const slaDate = comp.slaDeadline ? new Date(comp.slaDeadline) : null;
+                  const slicedList = filteredList.slice(0, visibleCount);
+
+                  return (
+                    <>
+                      {slicedList.map(comp => {
+                        const slaDate = comp.slaDeadline ? new Date(comp.slaDeadline) : null;
                     const isOverdue = slaDate ? slaDate.getTime() < Date.now() : false;
                     const totalSlaTime = slaDate ? (slaDate.getTime() - new Date(comp.createdAt).getTime()) : 1;
                     const timePassed = slaDate ? (Date.now() - new Date(comp.createdAt).getTime()) : 0;
@@ -386,7 +385,17 @@ export default function CitizenDashboard() {
                       </button>
                     </div>
                     )
-                  });
+                  })}
+                  {visibleCount < filteredList.length && (
+                    <button 
+                      onClick={() => setVisibleCount(v => v + 5)} 
+                      className="w-full py-3 mt-2 text-brand-primary font-bold hover:bg-brand-primary/10 rounded-lg transition-colors border border-brand-primary/20 bg-surface focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 cursor-pointer shadow-sm"
+                    >
+                      Load More Issues ({filteredList.length - visibleCount} remaining)
+                    </button>
+                  )}
+                  </>
+                  );
                 })()}
               </div>
             )}

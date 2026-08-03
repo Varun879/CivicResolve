@@ -26,6 +26,8 @@ public class SLAService {
     private final EscalationRepository escalationRepository;
     private final NotificationRepository notificationRepository;
     private final AssignmentService assignmentService;
+    private final EmailService emailService;
+    private final PushNotificationService pushNotificationService;
 
     /**
      * Runs every 15 minutes to check for SLA breaches.
@@ -71,7 +73,7 @@ public class SLAService {
 
         complaint.setIsEscalated(true);
         String deptName = assignmentService.resolveDepartment(complaint.getCategory());
-        Optional<User> superior = assignmentService.findSuperiorOfficer(deptName, complaint.getLatitude(), complaint.getLongitude());
+        Optional<User> superior = assignmentService.findSuperiorOfficer(deptName, complaint.getLatitude(), complaint.getLongitude(), level);
         superior.ifPresent(u -> complaint.setSuperiorOfficerId(u.getId()));
         
         complaintRepository.save(complaint);
@@ -89,6 +91,10 @@ public class SLAService {
             notif.setTitle("⚠️ Issue Escalated");
             notif.setMessage("Your report for " + complaint.getCategory() + " exceeded its SLA resolution timeline and was automatically escalated to " + level + (superior.isPresent() ? " (" + superior.get().getName() + ")" : "") + " for immediate intervention.");
             notificationRepository.save(notif);
+            
+            // Phase 2: Zero-cost Email and Push notification
+            emailService.sendEscalationEmail(complaint.getCitizen().getEmail(), complaint.getId().toString(), level);
+            pushNotificationService.sendPushNotification(complaint.getCitizen().getEmail(), notif.getTitle(), notif.getMessage());
         }
     }
 }

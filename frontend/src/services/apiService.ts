@@ -23,14 +23,11 @@ export const CivicApiService = {
   // --- AUTH ---
   login: async (email: string, password: string): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
-    if (response.data.token) {
-      localStorage.setItem('civic_jwt', response.data.token);
-    }
     return response.data;
   },
 
   logout: () => {
-    localStorage.removeItem('civic_jwt');
+    // Empty, since cookie deletion happens server-side via /auth/logout
   },
 
   // --- COMPLAINTS (CITIZEN) ---

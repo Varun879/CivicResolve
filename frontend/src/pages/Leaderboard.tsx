@@ -44,7 +44,8 @@ export default function Leaderboard() {
         !l.name?.toLowerCase().includes('dummy') && 
         !l.name?.toLowerCase().includes('mock') && 
         !l.email?.endsWith('@example.com') && 
-        !l.email?.toLowerCase().includes('test')
+        !l.email?.toLowerCase().includes('test') &&
+        l.points > 0
       );
       setLeaders(realLeaders);
     }).catch(console.error);

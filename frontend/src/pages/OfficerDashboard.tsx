@@ -3,8 +3,10 @@ import { fetchOfficerAssignments, officerUpdateComplaintStatus, type Complaint }
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ComplaintMap from '../components/ComplaintMap';
-import ProfileModal from '../components/ProfileModal';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import PortalHeader from '../components/PortalHeader';
+import EmptyState from '../components/EmptyState';
+import ProfileModal from '../components/ProfileModal';
 
 export default function OfficerDashboard() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -182,21 +184,7 @@ export default function OfficerDashboard() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:ml-64 w-full h-screen">
         {/* TopAppBar */}
-        <header className="flex justify-between items-center w-full px-8 h-16 sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant">
-          <div className="flex items-center gap-2 text-on-surface-variant bg-surface-container py-2 px-4 rounded-full w-64 focus-within:ring-2 ring-primary">
-            <span className="material-symbols-outlined text-[20px]">search</span>
-            <input className="bg-transparent border-none focus:outline-none w-full font-body-sm text-body-sm p-0" placeholder="Search Assignments..." type="text"/>
-          </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setShowProfile(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-secondary-container/30 hover:bg-secondary-container/50 text-primary rounded-full font-label-md transition-colors shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[20px]">person</span>
-              <span>{user?.email || 'Profile'}</span>
-            </button>
-          </div>
-        </header>
+        <PortalHeader onProfileClick={() => setShowProfile(true)} showMobileMenuIcon />
 
         {/* Main Dashboard Canvas */}
         <main className="flex-1 overflow-y-auto p-6 bg-surface">
@@ -209,8 +197,14 @@ export default function OfficerDashboard() {
                 </div>
                 {/* Performance Score Card */}
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center gap-4 shadow-sm">
-                  <div className="w-12 h-12 rounded-full border-4 border-secondary-container flex items-center justify-center font-headline-md text-headline-md text-primary">
-                    {efficiencyScore}%
+                  <div className="relative w-12 h-12">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="16" fill="none" className="stroke-secondary-container" strokeWidth="4" />
+                      <circle cx="18" cy="18" r="16" fill="none" className="stroke-primary" strokeWidth="4" strokeDasharray="100" strokeDashoffset={100 - efficiencyScore} strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center font-label-sm text-[10px] font-bold text-primary">
+                      {efficiencyScore}%
+                    </div>
                   </div>
                   <div>
                     <div className="font-label-md text-label-md text-primary">Efficiency Rating</div>
@@ -222,7 +216,11 @@ export default function OfficerDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto h-[calc(100vh-200px)] min-h-[600px]">
                 {/* Assignment List */}
                 <div className="lg:col-span-5 flex flex-col gap-4 overflow-y-auto pr-2">
-                  {complaints.length === 0 && <p className="text-on-surface-variant">No assignments found.</p>}
+                  {complaints.length === 0 && (
+                    <div className="h-64 mt-4">
+                      <EmptyState title="No assignments found" icon="assignment_turned_in" body="You currently have no active tasks." />
+                    </div>
+                  )}
                   {complaints.map(comp => (
                     <div 
                       key={comp.id} 
@@ -283,15 +281,26 @@ export default function OfficerDashboard() {
                               </div>
                             </div>
                           </div>
-                          <div className="bg-surface-container-low rounded-lg p-4 border border-outline-variant">
-                            <div className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">GPS Location</div>
-                            <div className="flex items-center gap-3">
-                              <span className="material-symbols-outlined text-primary text-3xl">my_location</span>
-                              <div>
-                                <div className="font-label-md text-label-md text-primary">Lat: {selectedComp.latitude.toFixed(4)}</div>
-                                <div className="font-body-sm text-body-sm text-on-surface-variant">Lng: {selectedComp.longitude.toFixed(4)}</div>
+                          <div className="bg-surface-container-low rounded-lg p-4 border border-outline-variant flex flex-col justify-between">
+                            <div>
+                              <div className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">GPS Location</div>
+                              <div className="flex items-center gap-3 mb-3">
+                                <span className="material-symbols-outlined text-primary text-3xl">my_location</span>
+                                <div>
+                                  <div className="font-label-md text-label-md text-primary">Lat: {selectedComp.latitude.toFixed(4)}</div>
+                                  <div className="font-body-sm text-body-sm text-on-surface-variant">Lng: {selectedComp.longitude.toFixed(4)}</div>
+                                </div>
                               </div>
                             </div>
+                            <a 
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${selectedComp.latitude},${selectedComp.longitude}`}
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="w-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold py-2 rounded flex items-center justify-center gap-1 transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-sm">directions</span>
+                              Get Directions
+                            </a>
                           </div>
                         </div>
 

@@ -90,14 +90,23 @@ public class AssignmentService {
         return Optional.empty();
     }
 
-    public Optional<User> findSuperiorOfficer(String departmentName, java.math.BigDecimal lat, java.math.BigDecimal lng) {
-        List<User> deptHeads = userRepository.findByRoleAndDepartment(Role.DEPT_HEAD, departmentName);
-        if (deptHeads != null && !deptHeads.isEmpty()) {
-            return Optional.of(deptHeads.get(0));
+    public Optional<User> findSuperiorOfficer(String departmentName, java.math.BigDecimal lat, java.math.BigDecimal lng, String level) {
+        Role targetRole = Role.DEPT_HEAD;
+        if ("ASSISTANT_ENGINEER".equals(level)) targetRole = Role.ASST_ENGINEER;
+        else if ("EXECUTIVE_ENGINEER".equals(level)) targetRole = Role.EXEC_ENGINEER;
+        else if ("MUNICIPAL_COMMISSIONER".equals(level)) targetRole = Role.COMMISSIONER;
+        
+        List<User> superiors = userRepository.findByRoleAndDepartment(targetRole, departmentName);
+        if (superiors != null && !superiors.isEmpty()) {
+            return Optional.of(superiors.get(0));
         }
-        List<User> commissioners = userRepository.findByRole(Role.COMMISSIONER);
-        if (commissioners != null && !commissioners.isEmpty()) {
-            return Optional.of(commissioners.get(0));
+        
+        // Fallback to commissioner if no specific role found
+        if (targetRole != Role.COMMISSIONER) {
+            List<User> commissioners = userRepository.findByRole(Role.COMMISSIONER);
+            if (commissioners != null && !commissioners.isEmpty()) {
+                return Optional.of(commissioners.get(0));
+            }
         }
         return Optional.empty();
     }

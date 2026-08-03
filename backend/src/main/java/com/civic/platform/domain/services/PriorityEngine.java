@@ -78,8 +78,24 @@ public class PriorityEngine {
         // Normalize support count (assume max 1000 for normalization)
         double normalizedSupportCount = Math.min(supportCount / 1000.0, 1.0);
         
-        // Simulate weather risk factor deterministically
         double weatherRiskFactor = 0.2;
+        if (latitude != null && longitude != null) {
+            try {
+                String weatherUrl = String.format("https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&current_weather=true", latitude, longitude);
+                ResponseEntity<String> weatherResp = restTemplate.getForEntity(weatherUrl, String.class);
+                JsonNode weatherJson = objectMapper.readTree(weatherResp.getBody());
+                JsonNode current = weatherJson.path("current_weather");
+                if (!current.isMissingNode()) {
+                    int weatherCode = current.path("weathercode").asInt(0);
+                    // WMO codes: >= 61 means Rain/Snow/Thunderstorms
+                    if (weatherCode >= 61) {
+                        weatherRiskFactor = 1.0;
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Open-Meteo API failed in PriorityEngine: " + e.getMessage());
+            }
+        }
 
         // Apply Formula from Master Prompt (Sec 9)
         double score = 

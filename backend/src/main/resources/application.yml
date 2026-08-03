@@ -34,7 +34,7 @@ server:
   port: 8080
 
 jwt:
-  secret: ${JWT_SECRET:change-me-in-production-use-a-64-char-hex-string}
+  secret: ${JWT_SECRET}
   expiration: 900000 # 15 minutes
 
 gemini:
@@ -43,3 +43,7 @@ gemini:
 
 rewards:
   top-contributor-percentile: 10
+
+app:
+  allowed-origins: ${APP_ALLOWED_ORIGINS:http://localhost:5173}
+  cookie-secure: ${COOKIE_SECURE:false}

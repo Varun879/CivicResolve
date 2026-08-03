@@ -46,6 +46,9 @@ public class AuthController {
     @Value("${app.dev-otp-bypass:false}")
     private boolean devOtpBypass;
 
+    @Value("${app.cookie-secure:true}")
+    private boolean cookieSecure;
+
     private final java.util.concurrent.ConcurrentHashMap<String, Integer> loginAttempts = new java.util.concurrent.ConcurrentHashMap<>();
     private final java.util.concurrent.ConcurrentHashMap<String, Long> loginLockouts = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -90,7 +93,7 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletResponse response) {
         org.springframework.http.ResponseCookie resCookie = org.springframework.http.ResponseCookie.from("civic_jwt", "")
                 .httpOnly(true)
-                .secure(true) // ideally conditional on env, but we'll set it here based on request
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(0)
@@ -149,8 +152,7 @@ public class AuthController {
             }
             boolean isOtpValid = otpService.verifyOtp(request.getEmail(), request.getOtp());
             
-            // Only allow 123456 bypass if explicitly enabled via dev property
-            if (!isOtpValid && !(devOtpBypass && "123456".equals(request.getOtp()))) {
+            if (!isOtpValid) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired verification code");
             }
 
@@ -239,7 +241,7 @@ public class AuthController {
     private void setJwtCookie(HttpServletResponse response, String token) {
         org.springframework.http.ResponseCookie resCookie = org.springframework.http.ResponseCookie.from("civic_jwt", token)
                 .httpOnly(true)
-                .secure(false) // For local testing, ideally set to true in production
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(15 * 60)

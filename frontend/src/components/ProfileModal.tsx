@@ -236,7 +236,7 @@ export default function ProfileModal({ show, onClose }: ProfileModalProps) {
                           verifyEmailOtp(newEmail, newVals.join(''))
                             .then(res => {
                               setVerifyStatus('success');
-                              login({ id: user?.id || '', email: res.username, role: res.role }, res.token);
+                              login({ id: user?.id || '', email: res.username, role: res.role });
                               setProfileData({ ...profileData, email: newEmail });
                               setTimeout(() => {
                                 setProfileView('details');

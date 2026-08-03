@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+﻿import { apiClient } from './client';
 
 export interface Notification {
   id: string;
@@ -14,6 +14,6 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
   return response.data;
 };
 
-export const markAllNotificationsRead = async (): Promise<void> => {
+export const markAllNotificationsAsRead = async (): Promise<void> => {
   await apiClient.post('/notifications/read-all');
 };

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -44,6 +45,9 @@ public class UserController {
     private final OtpService otpService;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+
+    @Value("${app.cookie-secure:true}")
+    private boolean cookieSecure;
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
@@ -141,7 +145,7 @@ public class UserController {
     private void setJwtCookie(HttpServletResponse response, String token) {
         org.springframework.http.ResponseCookie resCookie = org.springframework.http.ResponseCookie.from("civic_jwt", token)
                 .httpOnly(true)
-                .secure(false) // For local testing, ideally set to true in production
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(15 * 60)

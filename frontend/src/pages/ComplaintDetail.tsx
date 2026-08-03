@@ -78,7 +78,7 @@ export default function ComplaintDetail() {
       const load = () => fetchComplaintById(id).then(setComplaint).catch(console.error);
       load();
       
-      const sseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/sse/subscribe/${id}`;
+      const sseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'}/sse/subscribe/${id}`;
       const eventSource = new EventSource(sseUrl, { withCredentials: true });
       
       eventSource.addEventListener('COMPLAINT_UPDATE', () => {

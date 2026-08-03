@@ -49,6 +49,12 @@ public class User {
     @Column(name = "location")
     private String location;
 
+    @Column(name = "performance_score")
+    private Double performanceScore = 100.0;
+
+    @Column(name = "performance_grade")
+    private String performanceGrade = "Excellent";
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private ZonedDateTime createdAt;
 }

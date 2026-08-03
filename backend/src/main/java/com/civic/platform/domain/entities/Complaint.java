@@ -30,6 +30,8 @@ public class Complaint {
 
     private String description;
 
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
     @Column(name = "severity")
     private String severity;
 

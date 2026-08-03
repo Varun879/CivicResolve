@@ -62,6 +62,51 @@ public class DataSeeder {
                 admin.setAuthProvider(com.civic.platform.domain.enums.AuthProvider.LOCAL);
                 userRepository.save(admin);
             }
+            userRepository.findByEmail("varunmandati7@gmail.com").ifPresentOrElse(u -> {
+                u.setPasswordHash(passwordEncoder.encode("password"));
+                u.setRole(Role.COMMISSIONER);
+                userRepository.save(u);
+            }, () -> {
+                User comm2 = new User();
+                comm2.setName("Commissioner Varun");
+                comm2.setEmail("varunmandati7@gmail.com");
+                comm2.setPasswordHash(passwordEncoder.encode("password"));
+                comm2.setRole(Role.COMMISSIONER);
+                comm2.setAuthProvider(com.civic.platform.domain.enums.AuthProvider.LOCAL);
+                userRepository.save(comm2);
+            });
+
+            userRepository.findByEmail("237r1a05az@cmrtc.ac.in").ifPresentOrElse(u -> {
+                u.setPasswordHash(passwordEncoder.encode("password"));
+                u.setRole(Role.DEPT_HEAD);
+                u.setDepartment("GENERAL");
+                userRepository.save(u);
+            }, () -> {
+                User dept2 = new User();
+                dept2.setName("DeptHead Varun");
+                dept2.setEmail("237r1a05az@cmrtc.ac.in");
+                dept2.setPasswordHash(passwordEncoder.encode("password"));
+                dept2.setRole(Role.DEPT_HEAD);
+                dept2.setDepartment("GENERAL");
+                dept2.setAuthProvider(com.civic.platform.domain.enums.AuthProvider.LOCAL);
+                userRepository.save(dept2);
+            });
+
+            userRepository.findByEmail("varun765567@gmail.com").ifPresentOrElse(u -> {
+                u.setPasswordHash(passwordEncoder.encode("password"));
+                u.setRole(Role.FIELD_OFFICER);
+                u.setDepartment("GENERAL");
+                userRepository.save(u);
+            }, () -> {
+                User off2 = new User();
+                off2.setName("Officer Varun");
+                off2.setEmail("varun765567@gmail.com");
+                off2.setPasswordHash(passwordEncoder.encode("password"));
+                off2.setRole(Role.FIELD_OFFICER);
+                off2.setDepartment("GENERAL");
+                off2.setAuthProvider(com.civic.platform.domain.enums.AuthProvider.LOCAL);
+                userRepository.save(off2);
+            });
         };
     }
 }
