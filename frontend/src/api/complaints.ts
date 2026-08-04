@@ -26,11 +26,13 @@ export interface Complaint {
   assignedOfficerDepartment?: string;
   distanceToOfficerKm?: number;
   resolutionImageUrl?: string;
+  resolutionImageBase64?: string;
   resolutionLatitude?: number;
   resolutionLongitude?: number;
   isEscalated?: boolean;
   superiorOfficerName?: string;
   superiorOfficerRole?: string;
+  escalatedAt?: string;
 }
 
 export interface AiAnalysisResult {

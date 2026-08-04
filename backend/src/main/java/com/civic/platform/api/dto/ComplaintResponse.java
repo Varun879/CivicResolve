@@ -25,6 +25,7 @@ public class ComplaintResponse {
     private String department;
     private BigDecimal aiConfidenceScore;
     private String imageUrl;
+    private String imageBase64;
     private String publicId;
     private ZonedDateTime slaDeadline;
     private Integer reopenCount;
@@ -38,11 +39,13 @@ public class ComplaintResponse {
 
     // Resolution Verification
     private String resolutionImageUrl;
+    private String resolutionImageBase64;
     private BigDecimal resolutionLatitude;
     private BigDecimal resolutionLongitude;
 
     // Escalation Tracking
     private Boolean isEscalated;
+    private ZonedDateTime escalatedAt;
     private String superiorOfficerName;
     private String superiorOfficerRole;
 }

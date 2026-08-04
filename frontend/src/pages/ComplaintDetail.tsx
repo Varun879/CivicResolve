@@ -208,7 +208,7 @@ export default function ComplaintDetail() {
           </div>
 
           {/* Resolution Verification Photo & GPS */}
-          {complaint.resolutionImageUrl && (
+          {(complaint.resolutionImageUrl || complaint.resolutionImageBase64) && (
             <div className="bg-surface border-2 border-accent-green/40 p-6 rounded-xl mb-8 space-y-4 shadow-md">
               <div className="flex items-center gap-2 text-ink-primary font-bold font-headline-sm">
                 <span className="material-symbols-outlined text-accent-green text-2xl">verified</span>
@@ -218,7 +218,7 @@ export default function ComplaintDetail() {
                 The responsible field officer uploaded photographic evidence upon solving the issue. The GPS latitude & longitude of this resolution match your reported location within the mandatory <strong>10-meter (0.01 km)</strong> jurisdiction tolerance!
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                <img src={complaint.resolutionImageUrl} alt="Resolution Proof" className="w-full h-48 object-cover rounded-lg border border-accent-green/30 shadow-sm" />
+                <img src={complaint.resolutionImageUrl || `data:image/jpeg;base64,${complaint.resolutionImageBase64}`} alt="Resolution Proof" className="w-full h-48 object-cover rounded-lg border border-accent-green/30 shadow-sm" />
                 <div className="space-y-2 bg-surface p-4 rounded-lg border border-outline-variant">
                   <div className="text-sm">
                     <span className="font-bold text-ink-primary block">GPS Verification Status:</span>

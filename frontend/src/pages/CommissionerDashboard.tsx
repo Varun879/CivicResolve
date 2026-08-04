@@ -235,7 +235,7 @@ export default function CommissionerDashboard() {
                               </div>
                               <div className="flex items-center gap-1 text-error font-medium">
                                 <span className="material-symbols-outlined text-[14px]">timer</span>
-                                Since: {new Date(esc.createdAt).toLocaleDateString()}
+                                Escalated: {esc.escalatedAt ? new Date(esc.escalatedAt).toLocaleDateString() : 'Unknown'}
                               </div>
                             </div>
                           </div>
@@ -292,7 +292,7 @@ export default function CommissionerDashboard() {
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={deptPerformanceData}>
                         <XAxis dataKey="department" stroke="#5d5f65" tick={{ fontSize: 10 }} />
-                        <YAxis stroke="#5d5f65" />
+                        <YAxis stroke="#5d5f65" domain={[0, 100]} />
                         <Tooltip 
                           contentStyle={{ backgroundColor: '#091426', borderColor: '#42474e', color: '#e2e2e6' }}
                           itemStyle={{ color: '#a2c9ff' }}

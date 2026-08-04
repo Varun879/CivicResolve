@@ -112,4 +112,7 @@ public class Complaint {
 
     @Column(name = "superior_officer_id")
     private UUID superiorOfficerId;
+
+    @Column(name = "escalated_at")
+    private ZonedDateTime escalatedAt;
 }

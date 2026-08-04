@@ -9,6 +9,9 @@ import com.civic.platform.domain.repositories.*;
 import com.civic.platform.domain.services.EmailService;
 import com.civic.platform.domain.services.OtpService;
 import com.civic.platform.security.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import java.util.concurrent.TimeUnit;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import jakarta.validation.Valid;
@@ -45,6 +48,8 @@ public class UserController {
     private final OtpService otpService;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.cookie-secure:true}")
     private boolean cookieSecure;
@@ -52,6 +57,15 @@ public class UserController {
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        String cacheKey = "user_profile:" + userDetails.getUsername();
+        try {
+            String cached = redisTemplate.opsForValue().get(cacheKey);
+            if (cached != null) {
+                Map<String, Object> map = objectMapper.readValue(cached, new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+                return ResponseEntity.ok(map);
+            }
+        } catch (Exception e) {}
+
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
@@ -59,6 +73,11 @@ public class UserController {
         map.put("name", user.getName());
         map.put("email", user.getEmail());
         map.put("phone", user.getPhone());
+        
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(map), 15, TimeUnit.MINUTES);
+        } catch (Exception e) {}
+
         return ResponseEntity.ok(map);
     }
 
@@ -79,6 +98,10 @@ public class UserController {
         }
         
         userRepository.save(user);
+        
+        try {
+            redisTemplate.delete("user_profile:" + userDetails.getUsername());
+        } catch (Exception e) {}
 
         Map<String, Object> map = new HashMap<>();
         map.put("name", user.getName());
@@ -130,6 +153,10 @@ public class UserController {
         user.setEmail(request.getNewEmail());
         userRepository.save(user);
 
+        try {
+            redisTemplate.delete("user_profile:" + userDetails.getUsername());
+        } catch (Exception e) {}
+
         // Generate a new JWT since the username (email) has changed
         UserDetails newUserDetails = userDetailsService.loadUserByUsername(request.getNewEmail());
         String token = jwtUtil.generateToken(newUserDetails);
@@ -178,6 +205,10 @@ public class UserController {
             user.setPhone(phoneNumber);
             userRepository.save(user);
 
+            try {
+                redisTemplate.delete("user_profile:" + userDetails.getUsername());
+            } catch (Exception e) {}
+
             return ResponseEntity.ok(Map.of("message", "Phone updated successfully", "phone", phoneNumber));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Firebase token: " + e.getMessage());
@@ -206,6 +237,10 @@ public class UserController {
         complaintRepository.deleteAll(myComplaints);
         
         userRepository.delete(user);
+        
+        try {
+            redisTemplate.delete("user_profile:" + userDetails.getUsername());
+        } catch (Exception e) {}
         
         return ResponseEntity.ok(Map.of("message", "Account and all associated data permanently deleted"));
     }

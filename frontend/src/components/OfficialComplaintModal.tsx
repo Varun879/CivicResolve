@@ -107,8 +107,8 @@ export default function OfficialComplaintModal({ show, onClose, complaint }: Off
               <div>
                 <div className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-1 text-green-500">Resolution Evidence</div>
                 <div className="relative w-full h-48 rounded-lg overflow-hidden border border-green-500/30 bg-green-500/5 flex items-center justify-center">
-                  {complaint.resolutionImageUrl || complaint.imageBase64 ? ( 
-                    <img src={complaint.resolutionImageUrl || `data:image/jpeg;base64,${complaint.imageBase64}`} alt="Resolution" className="w-full h-full object-cover" />
+                  {complaint.resolutionImageUrl || complaint.resolutionImageBase64 ? ( 
+                    <img src={complaint.resolutionImageUrl || `data:image/jpeg;base64,${complaint.resolutionImageBase64}`} alt="Resolution" className="w-full h-full object-cover" />
                   ) : (
                     <span className="material-symbols-outlined text-4xl text-green-500/50">image_not_supported</span>
                   )}

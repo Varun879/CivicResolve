@@ -76,6 +76,7 @@ public class SLAService {
         log.warn("Escalating complaint {} to {}", complaint.getId(), level);
 
         complaint.setIsEscalated(true);
+        complaint.setEscalatedAt(ZonedDateTime.now());
         String deptName = assignmentService.resolveDepartment(complaint.getCategory());
         Optional<User> superior = assignmentService.findSuperiorOfficer(deptName, complaint.getLatitude(), complaint.getLongitude(), level);
         superior.ifPresent(u -> complaint.setSuperiorOfficerId(u.getId()));

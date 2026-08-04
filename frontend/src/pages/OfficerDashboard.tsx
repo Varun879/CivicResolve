@@ -412,17 +412,21 @@ export default function OfficerDashboard() {
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
                   <h3 className="font-headline-md text-headline-md text-primary mb-4 border-b border-outline-variant pb-2">Resolutions by Category</h3>
                   <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={analyticsData}>
-                        <XAxis dataKey="name" stroke="#5d5f65" />
-                        <YAxis stroke="#5d5f65" />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#091426', borderColor: '#42474e', color: '#e2e2e6' }}
-                          itemStyle={{ color: '#a2c9ff' }}
-                        />
-                        <Bar dataKey="resolved" fill="#005ac1" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    {analyticsData.length === 0 ? (
+                      <EmptyState title="No analytics data" icon="bar_chart" body="You haven't resolved any complaints yet." />
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={analyticsData}>
+                          <XAxis dataKey="name" stroke="#5d5f65" />
+                          <YAxis stroke="#5d5f65" />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#091426', borderColor: '#42474e', color: '#e2e2e6' }}
+                            itemStyle={{ color: '#a2c9ff' }}
+                          />
+                          <Bar dataKey="resolved" fill="#005ac1" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
                 </div>
               </div>

@@ -226,7 +226,7 @@ export default function DeptHeadDashboard() {
                               </div>
                               <div className="flex items-center gap-1 text-error font-medium">
                                 <span className="material-symbols-outlined text-[14px]">timer</span>
-                                Since: {new Date(esc.createdAt).toLocaleDateString()}
+                                Escalated: {esc.escalatedAt ? new Date(esc.escalatedAt).toLocaleDateString() : 'Unknown'}
                               </div>
                             </div>
                           </div>

@@ -6,6 +6,7 @@ type User = {
   email: string;
   name?: string;
   role: string; // 'CITIZEN', 'OFFICER', 'ADMIN'
+  token?: string;
 };
 
 interface AuthContextType {
